@@ -1,0 +1,56 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Página Não Encontrada">
+  <div class="not-found-container">
+    <span class="error-code">404</span>
+    <h1>Página não encontrada</h1>
+    <p>O artigo ou página que você procurou não existe ou mudou de endereço.</p>
+    <a href={`${import.meta.env.BASE_URL}/`} class="home-btn">Voltar ao feed</a>
+  </div>
+</Layout>
+
+<style>
+  .not-found-container {
+    text-align: center;
+    padding: 5rem 1rem;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .error-code {
+    font-size: 5rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    display: block;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: 2rem;
+    margin: 0 0 1rem 0;
+    color: var(--text);
+  }
+  p {
+    color: var(--muted);
+    font-size: 1.05rem;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+  .home-btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--text);
+    font-weight: 500;
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .home-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    text-decoration: none;
+  }
+</style>

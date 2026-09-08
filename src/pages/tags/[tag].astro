@@ -1,0 +1,95 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  const uniqueTags = [...new Set(posts.flatMap((post) => post.data.tags || []))];
+
+  return uniqueTags.map((tag) => {
+    const filteredPosts = posts
+      .filter((post) => post.data.tags?.includes(tag))
+      .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+    return {
+      params: { tag },
+      props: { posts: filteredPosts },
+    };
+  });
+}
+
+const { tag } = Astro.params;
+const { posts } = Astro.props;
+
+function formatDate(dateStr: string) {
+  const date = new Date(dateStr + 'T12:00:00');
+  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }).format(date);
+}
+
+function getReadingTime(body: string = '') {
+  const words = body.trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.ceil(words / 200));
+}
+---
+
+<Layout title={`Artigos com a tag #${tag}`}>
+  <div class="tag-header">
+    <a href={`${import.meta.env.BASE_URL}/`} class="back-link">← Voltar para o feed</a>
+    <h1 class="tag-title">Tag: <span class="accent">#{tag}</span></h1>
+    <p class="tag-count">{posts.length} {posts.length === 1 ? 'artigo encontrado' : 'artigos encontrados'}</p>
+  </div>
+
+  <ul class="post-list">
+    {posts.map((post) => {
+      const readingTime = getReadingTime(post.body);
+      return (
+        <li class="post-card">
+          <div class="post-date">{formatDate(post.data.date)} · {readingTime} min de leitura</div>
+          <a href={`${import.meta.env.BASE_URL}/posts/${post.id}`} class="post-title">
+            {post.data.title}
+          </a>
+          <p class="post-desc">{post.data.description}</p>
+          {post.data.tags && post.data.tags.length > 0 && (
+            <div class="tags">
+              {post.data.tags.map((t: string) => (
+                <a href={`${import.meta.env.BASE_URL}/tags/${t}`} class={`tag ${t === tag ? 'active' : ''}`}>
+                  #{t}
+                </a>
+              ))}
+            </div>
+          )}
+        </li>
+      );
+    })}
+  </ul>
+</Layout>
+
+<style>
+  .tag-header { margin-bottom: 2.5rem; }
+  .back-link { display: inline-block; margin-bottom: 1.5rem; font-size: 0.95rem; color: var(--muted); }
+  .back-link:hover { color: var(--accent); }
+  .tag-title { font-size: 2rem; margin: 0 0 0.5rem 0; color: var(--text); }
+  .tag-title .accent { color: var(--accent); }
+  .tag-count { margin: 0; color: var(--muted); font-size: 0.95rem; }
+  
+  .post-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1.5rem; }
+  .post-card {
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card-bg);
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .post-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .post-date { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem; }
+  .post-title { font-size: 1.25rem; font-weight: 600; display: block; margin-bottom: 0.5rem; text-decoration: none; }
+  .post-title:hover { text-decoration: none; opacity: 0.8; }
+  .post-desc { margin: 0; color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
+  
+  .tags { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+  .tag { font-size: 0.85rem; color: var(--accent); background: var(--code-bg); padding: 0.2rem 0.6rem; border-radius: 4px; text-decoration: none; transition: opacity 0.2s; }
+  .tag:hover { opacity: 0.8; text-decoration: none; }
+  .tag.active {
+    background: var(--accent);
+    color: #ffffff;
+  }
+</style>

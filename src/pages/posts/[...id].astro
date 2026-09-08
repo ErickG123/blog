@@ -1,0 +1,358 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  const sortedPosts = posts.sort(
+    (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+  );
+
+  return sortedPosts.map((post, index) => ({
+    params: { id: post.id },
+    props: {
+      post,
+      prevPost: sortedPosts[index + 1] || null,
+      nextPost: sortedPosts[index - 1] || null,
+    },
+  }));
+}
+
+const { post, prevPost, nextPost } = Astro.props;
+const { Content, headings } = await render(post);
+
+const formattedDate = new Intl.DateTimeFormat('pt-BR', { 
+  day: '2-digit', 
+  month: 'long', 
+  year: 'numeric' 
+}).format(new Date(post.data.date + 'T12:00:00'));
+
+const formattedUpdatedDate = post.data.updatedDate
+  ? new Intl.DateTimeFormat('pt-BR', { 
+      day: '2-digit', 
+      month: 'long', 
+      year: 'numeric' 
+    }).format(new Date(post.data.updatedDate + 'T12:00:00'))
+  : null;
+
+const words = (post.body || '').trim().split(/\s+/).filter(Boolean).length;
+const readingTime = Math.max(1, Math.ceil(words / 200));
+
+const postUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : Astro.url.href;
+const xShareUrl = `https://x.com/intent/post?text=${encodeURIComponent(post.data.title)}&url=${encodeURIComponent(postUrl)}`;
+const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`;
+
+const giscusRepo = import.meta.env.PUBLIC_GISCUS_REPO || 'ErickG123/blog';
+const giscusRepoId = import.meta.env.PUBLIC_GISCUS_REPO_ID || 'R_kgDOUSrohA';
+const giscusCategory = import.meta.env.PUBLIC_GISCUS_CATEGORY || 'General';
+const giscusCategoryId = import.meta.env.PUBLIC_GISCUS_CATEGORY_ID || 'DIC_kwDOUSrohM4DFKsr';
+---
+
+<Layout title={post.data.title} description={post.data.description} type="article">
+  <div id="progress-bar" aria-hidden="true"></div>
+
+  <div class="layout-grid">
+    <div class="main-content">
+      <a href={`${import.meta.env.BASE_URL}/`} class="back-link">← Voltar para o feed</a>
+      <article>
+        <span class="post-date">
+          {formattedDate} · {readingTime} min de leitura
+          {formattedUpdatedDate && <span class="updated-date">(Atualizado em: {formattedUpdatedDate})</span>}
+        </span>
+
+        {/* Force rendering tags */}
+        {post.data.tags && post.data.tags.length > 0 && (
+          <div class="tags">
+            {post.data.tags.map((tag: string) => (
+              <a href={`${import.meta.env.BASE_URL}/tags/${tag}`} class="tag">#{tag}</a>
+            ))}
+          </div>
+        )}
+
+        <h1 class="post-title">{post.data.title}</h1>
+        <div class="content">
+          <Content/>
+        </div>
+
+        <div class="share-section">
+          <span>Compartilhar:</span>
+          <div class="share-links">
+            <a href={xShareUrl} target="_blank" rel="noopener noreferrer" class="share-btn">X</a>
+            <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" class="share-btn">LinkedIn</a>
+            <button id="copy-link-btn" data-url={postUrl} class="share-btn">Copiar link</button>
+          </div>
+        </div>
+
+        <nav class="post-nav">
+          <div class="nav-prev">
+            {prevPost && (
+              <a href={`${import.meta.env.BASE_URL}/posts/${prevPost.id}`} class="nav-link">
+                ← {prevPost.data.title}
+              </a>
+            )}
+          </div>
+          <div class="nav-next">
+            {nextPost && (
+              <a href={`${import.meta.env.BASE_URL}/posts/${nextPost.id}`} class="nav-link">
+                {nextPost.data.title} →
+              </a>
+            )}
+          </div>
+        </nav>
+
+        <div class="comments-section" style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+          <div id="giscus-container"></div>
+        </div>
+
+        <script is:inline define:vars={{ giscusRepo, giscusRepoId, giscusCategory, giscusCategoryId }}>
+          (function initGiscus() {
+            const isDark = document.documentElement.classList.contains('dark') || localStorage.getItem('theme') === 'dark';
+            const theme = isDark ? 'noborder_dark' : 'light';
+
+            const script = document.createElement('script');
+            script.src = 'https://giscus.app/client.js';
+            script.setAttribute('data-repo', giscusRepo);
+            script.setAttribute('data-repo-id', giscusRepoId);
+            script.setAttribute('data-category', giscusCategory);
+            script.setAttribute('data-category-id', giscusCategoryId);
+            script.setAttribute('data-mapping', 'pathname');
+            script.setAttribute('data-strict', '0');
+            script.setAttribute('data-reactions-enabled', '1');
+            script.setAttribute('data-emit-metadata', '0');
+            script.setAttribute('data-input-position', 'bottom');
+            script.setAttribute('data-theme', theme);
+            script.setAttribute('data-lang', 'pt');
+            script.setAttribute('crossorigin', 'anonymous');
+            script.async = true;
+
+            document.getElementById('giscus-container')?.appendChild(script);
+          })();
+        </script>
+      </article>
+    </div>
+
+    {/* Table of Contents Sidebar */}
+    {headings && headings.length > 0 && (
+      <aside class="sidebar">
+        <div class="sidebar-content">
+          <h3>Neste Artigo</h3>
+          <ul class="toc-list">
+            {headings.map((heading: any) => (
+              <li style={`padding-left: ${(heading.depth - 2) * 1}rem`}>
+                <a href={`#${heading.slug}`}>{heading.text}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </aside>
+    )}
+  </div>
+
+  <script is:inline>
+    window.addEventListener('scroll', () => {
+      const progressBar = document.getElementById('progress-bar');
+      if (!progressBar) return;
+      const winScroll = document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
+      progressBar.style.width = scrolled + '%';
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Process Copy Link button
+      const copyLinkBtn = document.getElementById("copy-link-btn");
+      if (copyLinkBtn) {
+        copyLinkBtn.addEventListener("click", async () => {
+          const url = copyLinkBtn.getAttribute("data-url") || window.location.href;
+          try {
+            await navigator.clipboard.writeText(url);
+            const originalText = copyLinkBtn.innerText;
+            copyLinkBtn.innerText = "Link copiado!";
+            setTimeout(() => {
+              copyLinkBtn.innerText = originalText;
+            }, 2000);
+          } catch (err) {
+            console.error("Falha ao copiar link: ", err);
+          }
+        });
+      }
+
+      // Process GitHub-flavored alerts in blockquotes
+      const blockquotes = document.querySelectorAll(".content blockquote");
+      blockquotes.forEach((bq) => {
+        const firstP = bq.querySelector("p");
+        if (!firstP) return;
+        const text = firstP.innerHTML;
+        const match = text.match(/^\[\!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*)/i);
+        if (match) {
+          const type = match[1].toLowerCase();
+          bq.setAttribute("data-alert", type);
+          const badgeText = match[1].toUpperCase();
+          const restText = match[2];
+          firstP.innerHTML = `<strong class="alert-title alert-title-${type}">${badgeText}</strong>${restText ? '<br/>' + restText : ''}`;
+        }
+      });
+
+      // Process Copy button in pre code blocks
+      const codeBlocks = document.querySelectorAll(".content pre");
+      codeBlocks.forEach((pre) => {
+        pre.style.position = "relative";
+        
+        const copyBtn = document.createElement("button");
+        copyBtn.className = "copy-btn";
+        copyBtn.innerText = "Copiar";
+        
+        copyBtn.addEventListener("click", async () => {
+          const code = pre.querySelector("code");
+          const text = code ? code.innerText : pre.innerText;
+          try {
+            await navigator.clipboard.writeText(text);
+            copyBtn.innerText = "Copiado!";
+            setTimeout(() => {
+              copyBtn.innerText = "Copiar";
+            }, 2000);
+          } catch (err) {
+            console.error("Falha ao copiar texto: ", err);
+          }
+        });
+
+        pre.appendChild(copyBtn);
+      });
+    });
+  </script>
+</Layout>
+
+<style>
+  #progress-bar { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    height: 3px; 
+    background: var(--accent); 
+    width: 0%; 
+    z-index: 9999; 
+    transition: width 0.1s ease-out; 
+  }
+
+  .layout-grid { display: grid; grid-template-columns: 1fr; gap: 3rem; }
+  @media (min-width: 768px) { .layout-grid { grid-template-columns: 1fr 250px; align-items: start; } }
+  .sidebar-content { position: sticky; top: 2rem; padding: 1.5rem; border: 1px solid var(--border); border-radius: 8px; background: var(--card-bg); }
+  .sidebar-content h3 { margin-top: 0; margin-bottom: 1.2rem; font-size: 1.1rem; color: var(--text); }
+  .toc-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+  .toc-list a { color: var(--muted); font-size: 0.9rem; text-decoration: none; transition: color 0.2s; display: block; line-height: 1.4; }
+  .toc-list a:hover { color: var(--accent); }
+
+  .back-link { display: inline-block; margin-bottom: 2.5rem; font-size: 0.95rem; color: var(--muted); }
+  .back-link:hover { color: var(--accent); }
+  .post-date { font-size: 0.95rem; color: var(--muted); display: block; margin-bottom: 0.8rem; }
+  .updated-date { color: var(--muted); font-size: 0.85rem; margin-left: 0.5rem; font-style: italic; }
+
+  .tags { display: flex; gap: 0.5rem; margin: 1rem 0 1.5rem 0; flex-wrap: wrap; }
+  .tag { font-size: 0.85rem; color: var(--accent); background: var(--code-bg); padding: 0.2rem 0.6rem; border-radius: 4px; text-decoration: none; border: 1px solid transparent; transition: border-color 0.2s; }
+  .tag:hover { border-color: var(--accent); }
+
+  .post-title { margin: 0 0 2.5rem 0; font-size: 2.2rem; line-height: 1.3; color: var(--text); }
+  .content :global(h2), .content :global(h3) { margin-top: 2.5rem; margin-bottom: 1rem; color: var(--text); }
+  .content :global(p) { margin-bottom: 1.5rem; font-size: 1.05rem; }
+  .content :global(ul), .content :global(ol) { margin-bottom: 1.5rem; font-size: 1.05rem; }
+  
+  .content :global(blockquote) { 
+    border-left: 4px solid var(--border); 
+    padding: 0.8rem 1.2rem; 
+    background: var(--card-bg); 
+    border-radius: 0 6px 6px 0; 
+    margin: 1.5rem 0; 
+    color: var(--text);
+  }
+  .content :global(blockquote[data-alert="note"]) { border-left-color: var(--accent); }
+  .content :global(blockquote[data-alert="tip"]) { border-left-color: #10b981; }
+  .content :global(blockquote[data-alert="important"]) { border-left-color: #8b5cf6; }
+  .content :global(blockquote[data-alert="warning"]) { border-left-color: #eab308; }
+  .content :global(blockquote[data-alert="caution"]) { border-left-color: #ef4444; }
+
+  .content :global(.alert-title) { display: block; margin-bottom: 0.4rem; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; }
+  .content :global(.alert-title-note) { color: var(--accent); }
+  .content :global(.alert-title-tip) { color: #10b981; }
+  .content :global(.alert-title-important) { color: #8b5cf6; }
+  .content :global(.alert-title-warning) { color: #eab308; }
+  .content :global(.alert-title-caution) { color: #ef4444; }
+
+  .content :global(pre) { position: relative; }
+  .content :global(.copy-btn) {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    background: var(--code-bg);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .content :global(.copy-btn:hover) {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .share-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  .share-links {
+    display: flex;
+    gap: 0.6rem;
+  }
+  .share-btn {
+    font-size: 0.85rem;
+    color: var(--text);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .share-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .post-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .nav-prev, .nav-next { flex: 1; }
+  .nav-next { text-align: right; }
+  .nav-link {
+    color: var(--text);
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-link:hover {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .comments-section {
+    margin-top: 3.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+</style>
