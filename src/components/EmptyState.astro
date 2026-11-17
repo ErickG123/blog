@@ -1,0 +1,11 @@
+---
+interface Props { title: string; message: string; }
+const { title, message } = Astro.props;
+---
+<section class="empty" aria-live="polite"><h2>{title}</h2><p>{message}</p></section>
+<style>
+  .empty { padding:2rem; border:1px dashed var(--border); border-radius:var(--radius); text-align:center; color:var(--muted); }
+  .empty[hidden] { display:none!important; }
+  .empty h2 { margin:0 0 .5rem; color:var(--text); font-size:1.15rem; }
+  .empty p { margin:0; }
+</style>

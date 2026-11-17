@@ -1,0 +1,5 @@
+---
+import Layout from '../../layouts/Layout.astro'; import PostListing from '../../components/PostListing.astro'; import { getCollection } from 'astro:content'; import { postsOfType } from '../../utils/content';
+const posts = postsOfType(await getCollection('posts'), 'news');
+---
+<Layout title="Notícias de anime e mangá"><PostListing title="Notícias" description="Atualizações editoriais sobre anime e mangá." posts={posts} /></Layout>

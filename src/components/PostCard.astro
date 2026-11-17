@@ -1,0 +1,32 @@
+---
+import type { BlogPost } from '../utils/content';
+import { getCollection } from 'astro:content';
+import { basePath, formatDate, postDate, readingTime, typeLabels } from '../utils/content';
+
+interface Props { post: BlogPost; }
+const { post } = Astro.props;
+const date = postDate(post);
+const taxonomies = await getCollection('taxonomies');
+const tagTaxonomies = post.data.taxonomyRefs
+  .map((reference) => taxonomies.find((taxonomy) => taxonomy.id === reference.id && taxonomy.data.type === 'tag'))
+  .filter((taxonomy) => taxonomy !== undefined);
+---
+<article class="post-card">
+  {post.data.cover && <><img class="cover" src={basePath(post.data.cover)} alt="" loading="lazy" />{post.data.coverCredit && <small class="credit">Imagem: <a href={post.data.coverSource} target="_blank" rel="noopener noreferrer">{post.data.coverCredit}</a></small>}</>}
+  <div class="meta">{typeLabels[post.data.type]} · {formatDate(date)} · {readingTime(post.body)} min de leitura</div>
+  <h2><a href={basePath(`/posts/${post.id}/`)}>{post.data.title}</a></h2>
+  <p>{post.data.description}</p>
+  {(post.data.tags.length > 0 || tagTaxonomies.length > 0) && <div class="tags">{post.data.tags.map((tag) => <a href={basePath(`/tags/${encodeURIComponent(tag)}/`)}>#{tag}</a>)}{tagTaxonomies.map((taxonomy) => <a href={basePath(`/tags/${encodeURIComponent(taxonomy.id)}/`)}>#{taxonomy.data.name}</a>)}</div>}
+</article>
+
+<style>
+  .post-card { display:grid; gap:.65rem; padding:1.35rem; border:1px solid var(--border); border-radius:var(--radius); background:var(--card-bg); }
+  .post-card[hidden] { display:none; }
+  .post-card h2 { margin:0; font-size:1.2rem; line-height:1.35; }
+  .post-card p { margin:0; color:var(--muted); }
+  .meta { color:var(--muted); font-size:.85rem; }
+  .cover { width:100%; max-height:15rem; object-fit:cover; border-radius:calc(var(--radius) - 4px); }
+  .credit { color:var(--muted);font-size:.75rem; }
+  .tags { display:flex; gap:.5rem; flex-wrap:wrap; }
+  .tags a { color:var(--accent); font-size:.85rem; }
+</style>

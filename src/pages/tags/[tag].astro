@@ -1,58 +1,64 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import { basePath, formatDate, postDate, publicPosts, readingTime } from '../../utils/content';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('posts');
-  const uniqueTags = [...new Set(posts.flatMap((post) => post.data.tags || []))];
+  const posts = publicPosts(await getCollection('posts'));
+  const taxonomies = (await getCollection('taxonomies')).filter((taxonomy) => taxonomy.data.type === 'tag');
+  const taxonomyTagIds = new Set(taxonomies.map((taxonomy) => taxonomy.id));
+  const uniqueTags = [...new Set([
+    ...posts.flatMap((post) => post.data.tags),
+    ...posts.flatMap((post) => post.data.taxonomyRefs.map((reference) => reference.id).filter((id) => taxonomyTagIds.has(id))),
+    ...taxonomies.map((taxonomy) => taxonomy.id),
+  ])];
 
   return uniqueTags.map((tag) => {
     const filteredPosts = posts
-      .filter((post) => post.data.tags?.includes(tag))
-      .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+      .filter((post) => post.data.tags.includes(tag) || (taxonomyTagIds.has(tag) && post.data.taxonomyRefs.some((reference) => reference.id === tag)))
+      .sort((a, b) => new Date(postDate(b)).getTime() - new Date(postDate(a)).getTime() || a.id.localeCompare(b.id));
     return {
       params: { tag },
-      props: { posts: filteredPosts },
+      props: { posts: filteredPosts, label: taxonomies.find((taxonomy) => taxonomy.id === tag)?.data.name ?? tag },
     };
   });
 }
 
 const { tag } = Astro.params;
-const { posts } = Astro.props;
+const { posts, label } = Astro.props;
+const taxonomyTags = (await getCollection('taxonomies')).filter((taxonomy) => taxonomy.data.type === 'tag');
 
-function formatDate(dateStr: string) {
-  const date = new Date(dateStr + 'T12:00:00');
-  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }).format(date);
-}
-
-function getReadingTime(body: string = '') {
-  const words = body.trim().split(/\s+/).filter(Boolean).length;
-  return Math.max(1, Math.ceil(words / 200));
-}
 ---
 
 <Layout title={`Artigos com a tag #${tag}`}>
   <div class="tag-header">
     <a href={`${import.meta.env.BASE_URL}/`} class="back-link">← Voltar para o feed</a>
-    <h1 class="tag-title">Tag: <span class="accent">#{tag}</span></h1>
+    <h1 class="tag-title">Tag: <span class="accent">#{label}</span></h1>
     <p class="tag-count">{posts.length} {posts.length === 1 ? 'artigo encontrado' : 'artigos encontrados'}</p>
   </div>
 
   <ul class="post-list">
     {posts.map((post) => {
-      const readingTime = getReadingTime(post.body);
+      const minutes = readingTime(post.body);
+      const postTags = [
+        ...post.data.tags.map((id) => ({ id, label: id })),
+        ...post.data.taxonomyRefs
+          .map((reference) => taxonomyTags.find((taxonomy) => taxonomy.id === reference.id))
+          .filter((taxonomy) => taxonomy !== undefined)
+          .map((taxonomy) => ({ id: taxonomy.id, label: taxonomy.data.name })),
+      ];
       return (
         <li class="post-card">
-          <div class="post-date">{formatDate(post.data.date)} · {readingTime} min de leitura</div>
-          <a href={`${import.meta.env.BASE_URL}/posts/${post.id}`} class="post-title">
+          <div class="post-date">{formatDate(postDate(post))} · {minutes} min de leitura</div>
+          <a href={basePath(`/posts/${post.id}/`)} class="post-title">
             {post.data.title}
           </a>
           <p class="post-desc">{post.data.description}</p>
-          {post.data.tags && post.data.tags.length > 0 && (
+          {postTags.length > 0 && (
             <div class="tags">
-              {post.data.tags.map((t: string) => (
-                <a href={`${import.meta.env.BASE_URL}/tags/${t}`} class={`tag ${t === tag ? 'active' : ''}`}>
-                  #{t}
+              {postTags.map(({ id, label }) => (
+                <a href={basePath(`/tags/${encodeURIComponent(id)}/`)} class={`tag ${id === tag ? 'active' : ''}`}>
+                  #{label}
                 </a>
               ))}
             </div>
@@ -90,6 +96,6 @@ function getReadingTime(body: string = '') {
   .tag:hover { opacity: 0.8; text-decoration: none; }
   .tag.active {
     background: var(--accent);
-    color: #ffffff;
+    color: var(--accent-contrast);
   }
 </style>

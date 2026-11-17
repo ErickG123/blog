@@ -1,12 +1,11 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { basePath, formatDate, isPublicWork, postDate, postUpdatedDate, publicPosts, readingTime, typeLabels } from '../../utils/content';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('posts');
-  const sortedPosts = posts.sort(
-    (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
-  );
+  const sortedPosts = publicPosts(await getCollection('posts'));
 
   return sortedPosts.map((post, index) => ({
     params: { id: post.id },
@@ -21,22 +20,10 @@ export async function getStaticPaths() {
 const { post, prevPost, nextPost } = Astro.props;
 const { Content, headings } = await render(post);
 
-const formattedDate = new Intl.DateTimeFormat('pt-BR', { 
-  day: '2-digit', 
-  month: 'long', 
-  year: 'numeric' 
-}).format(new Date(post.data.date + 'T12:00:00'));
-
-const formattedUpdatedDate = post.data.updatedDate
-  ? new Intl.DateTimeFormat('pt-BR', { 
-      day: '2-digit', 
-      month: 'long', 
-      year: 'numeric' 
-    }).format(new Date(post.data.updatedDate + 'T12:00:00'))
-  : null;
-
-const words = (post.body || '').trim().split(/\s+/).filter(Boolean).length;
-const readingTime = Math.max(1, Math.ceil(words / 200));
+const formattedDate = formatDate(postDate(post));
+const updatedDate = postUpdatedDate(post);
+const formattedUpdatedDate = updatedDate ? formatDate(updatedDate) : null;
+const minutesToRead = readingTime(post.body);
 
 const postUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : Astro.url.href;
 const xShareUrl = `https://x.com/intent/post?text=${encodeURIComponent(post.data.title)}&url=${encodeURIComponent(postUrl)}`;
@@ -46,33 +33,64 @@ const giscusRepo = import.meta.env.PUBLIC_GISCUS_REPO || 'ErickG123/blog';
 const giscusRepoId = import.meta.env.PUBLIC_GISCUS_REPO_ID || 'R_kgDOUSrohA';
 const giscusCategory = import.meta.env.PUBLIC_GISCUS_CATEGORY || 'General';
 const giscusCategoryId = import.meta.env.PUBLIC_GISCUS_CATEGORY_ID || 'DIC_kwDOUSrohM4DFKsr';
+const giscusConfigured = [giscusRepo, giscusRepoId, giscusCategory, giscusCategoryId].every((value) => Boolean(value) && !value.startsWith('SEU_'));
+const relatedWorks = (await getCollection('works')).filter(isPublicWork);
+const authors = await getCollection('authors');
+const author = post.data.author ? authors.find((item) => item.id === post.data.author?.id) : undefined;
+const works = post.data.works.map((reference) => relatedWorks.find((item) => item.id === reference.id)).filter(Boolean);
+const taxonomyEntries = await getCollection('taxonomies');
+const postTags = [
+  ...post.data.tags.map((id) => ({ id, label: id })),
+  ...post.data.taxonomyRefs.map((reference) => taxonomyEntries.find((item) => item.id === reference.id && item.data.type === 'tag')).filter((item) => item !== undefined).map((item) => ({ id: item.id, label: item.data.name })),
+];
+const postWorkIds = post.data.works.map((reference) => reference.id);
+const relatedPosts = publicPosts(await getCollection('posts')).filter((item) => item.id !== post.id && item.data.works.some((reference) => postWorkIds.includes(reference.id))).slice(0, 3);
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: new Date(`${postDate(post)}T12:00:00Z`).toISOString(),
+  ...(updatedDate ? { dateModified: new Date(`${updatedDate}T12:00:00Z`).toISOString() } : {}),
+  mainEntityOfPage: postUrl,
+  author: author ? { '@type': 'Person', name: author.data.name } : { '@type': 'Organization', name: 'Anime & Mangá' },
+  ...(post.data.cover && Astro.site ? { image: new URL(basePath(post.data.cover), Astro.site).toString() } : {}),
+};
 ---
 
 <Layout title={post.data.title} description={post.data.description} type="article">
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema).replace(/</g, '\\u003c')} />
   <div id="progress-bar" aria-hidden="true"></div>
 
   <div class="layout-grid">
     <div class="main-content">
-      <a href={`${import.meta.env.BASE_URL}/`} class="back-link">← Voltar para o feed</a>
+      <a href={basePath('/')} class="back-link">← Voltar para o feed</a>
       <article>
         <span class="post-date">
-          {formattedDate} · {readingTime} min de leitura
+          {formattedDate} · {minutesToRead} min de leitura
           {formattedUpdatedDate && <span class="updated-date">(Atualizado em: {formattedUpdatedDate})</span>}
         </span>
 
         {/* Force rendering tags */}
-        {post.data.tags && post.data.tags.length > 0 && (
+        {postTags.length > 0 && (
           <div class="tags">
-            {post.data.tags.map((tag: string) => (
-              <a href={`${import.meta.env.BASE_URL}/tags/${tag}`} class="tag">#{tag}</a>
+            {postTags.map(({ id, label }) => (
+              <a href={basePath(`/tags/${encodeURIComponent(id)}/`)} class="tag">#{label}</a>
             ))}
           </div>
         )}
 
+        <div class="breadcrumbs"><a href={basePath('/')}>Início</a><span aria-hidden="true"> / </span>{post.data.type === 'article' ? <span>{typeLabels[post.data.type]}</span> : <a href={basePath(`/${({news:'noticias',anime:'animes',manga:'mangas',review:'reviews',guide:'guias'}[post.data.type])}/`)}>{typeLabels[post.data.type]}</a>}</div>
+        <p class="category-label">{typeLabels[post.data.type]}</p>
+        {post.data.cover && <figure class="article-figure"><img class="article-cover" src={basePath(post.data.cover)} alt={post.data.coverAlt || `Capa de ${post.data.title}`} />{post.data.coverCredit && <figcaption>Imagem: <a href={post.data.coverSource} target="_blank" rel="noopener noreferrer">{post.data.coverCredit}</a></figcaption>}</figure>}
         <h1 class="post-title">{post.data.title}</h1>
+        {author && <p class="author">Por {author.data.name}</p>}
+        {post.data.spoilerLevel && post.data.spoilerLevel !== 'none' && <aside class="spoiler" role="note"><strong>Aviso de spoiler</strong><span>Este artigo contém spoilers classificados como {post.data.spoilerLevel}.</span></aside>}
         <div class="content">
           <Content/>
         </div>
+        {post.data.sources.length > 0 && <section class="sources"><h2>Fontes</h2><ul>{post.data.sources.map((source) => <li><a href={source.url} target="_blank" rel="noopener noreferrer">{source.label}</a></li>)}</ul></section>}
+        {works.length > 0 && <section class="related-works"><h2>Obras relacionadas</h2><ul>{works.map((work) => <li><a href={basePath(`/obras/${work!.id}/`)}>{work!.data.title}</a></li>)}</ul></section>}
 
         <div class="share-section">
           <span>Compartilhar:</span>
@@ -86,25 +104,27 @@ const giscusCategoryId = import.meta.env.PUBLIC_GISCUS_CATEGORY_ID || 'DIC_kwDOU
         <nav class="post-nav">
           <div class="nav-prev">
             {prevPost && (
-              <a href={`${import.meta.env.BASE_URL}/posts/${prevPost.id}`} class="nav-link">
+              <a href={basePath(`/posts/${prevPost.id}/`)} class="nav-link">
                 ← {prevPost.data.title}
               </a>
             )}
           </div>
           <div class="nav-next">
             {nextPost && (
-              <a href={`${import.meta.env.BASE_URL}/posts/${nextPost.id}`} class="nav-link">
+              <a href={basePath(`/posts/${nextPost.id}/`)} class="nav-link">
                 {nextPost.data.title} →
               </a>
             )}
           </div>
         </nav>
 
+        {relatedPosts.length > 0 && <section class="related-posts"><h2>Continue lendo</h2><div class="related-list">{relatedPosts.map((item) => <PostCard post={item} />)}</div></section>}
+
         <div class="comments-section" style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border);">
-          <div id="giscus-container"></div>
+          {giscusConfigured ? <div id="giscus-container"></div> : <p class="comments-fallback">Comentários indisponíveis no momento. Você pode compartilhar este artigo pelos links acima.</p>}
         </div>
 
-        <script is:inline define:vars={{ giscusRepo, giscusRepoId, giscusCategory, giscusCategoryId }}>
+        {giscusConfigured && <script is:inline define:vars={{ giscusRepo, giscusRepoId, giscusCategory, giscusCategoryId }}>
           (function initGiscus() {
             const isDark = document.documentElement.classList.contains('dark') || localStorage.getItem('theme') === 'dark';
             const theme = isDark ? 'noborder_dark' : 'light';
@@ -127,7 +147,7 @@ const giscusCategoryId = import.meta.env.PUBLIC_GISCUS_CATEGORY_ID || 'DIC_kwDOU
 
             document.getElementById('giscus-container')?.appendChild(script);
           })();
-        </script>
+        </script>}
       </article>
     </div>
 
@@ -135,9 +155,9 @@ const giscusCategoryId = import.meta.env.PUBLIC_GISCUS_CATEGORY_ID || 'DIC_kwDOU
     {headings && headings.length > 0 && (
       <aside class="sidebar">
         <div class="sidebar-content">
-          <h3>Neste Artigo</h3>
+          <h2>Neste Artigo</h2>
           <ul class="toc-list">
-            {headings.map((heading: any) => (
+            {headings.map((heading: { depth: number; slug: string; text: string }) => (
               <li style={`padding-left: ${(heading.depth - 2) * 1}rem`}>
                 <a href={`#${heading.slug}`}>{heading.text}</a>
               </li>
@@ -183,7 +203,7 @@ const giscusCategoryId = import.meta.env.PUBLIC_GISCUS_CATEGORY_ID || 'DIC_kwDOU
         const firstP = bq.querySelector("p");
         if (!firstP) return;
         const text = firstP.innerHTML;
-        const match = text.match(/^\[\!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*)/i);
+        const match = text.match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*)/i);
         if (match) {
           const type = match[1].toLowerCase();
           bq.setAttribute("data-alert", type);
@@ -243,6 +263,18 @@ const giscusCategoryId = import.meta.env.PUBLIC_GISCUS_CATEGORY_ID || 'DIC_kwDOU
   .toc-list a:hover { color: var(--accent); }
 
   .back-link { display: inline-block; margin-bottom: 2.5rem; font-size: 0.95rem; color: var(--muted); }
+  .breadcrumbs { margin:.4rem 0 1rem; color:var(--muted); font-size:.85rem; }
+  .category-label { color:var(--accent); font-size:.8rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+  .article-figure { margin:1rem 0 2rem; }
+  .article-cover { display:block; max-width:100%; max-height:28rem; object-fit:cover; border-radius:var(--radius); }
+  .article-figure figcaption { margin-top:.5rem;color:var(--muted);font-size:.8rem; }
+  .author { color:var(--muted); }
+  .spoiler { display:grid; gap:.25rem; padding:1rem; margin:1.5rem 0; border-left:3px solid #eab308; background:var(--card-bg); border-radius:0 var(--radius) var(--radius) 0; }
+  .spoiler strong { color:#a16207; }
+  html.dark .spoiler strong { color:#facc15; }
+  .related-works,.related-posts { margin-top:2rem; }
+  .sources { margin-top:2rem; }
+  .related-list { display:grid; gap:.8rem; }
   .back-link:hover { color: var(--accent); }
   .post-date { font-size: 0.95rem; color: var(--muted); display: block; margin-bottom: 0.8rem; }
   .updated-date { color: var(--muted); font-size: 0.85rem; margin-left: 0.5rem; font-style: italic; }

@@ -1,0 +1,107 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import { getCollection } from 'astro:content';
+import { basePath, isPublicWork, seasonLabels } from '../../utils/content';
+import { taxonomyId } from '../../utils/work-filters';
+
+const [allWorks, taxonomies] = await Promise.all([getCollection('works'), getCollection('taxonomies')]);
+const works = allWorks.filter(isPublicWork).sort((a, b) => a.id.localeCompare(b.id));
+const genreTaxonomies = taxonomies.filter((taxonomy) => taxonomy.data.type === 'genre');
+const genreLabelsById = new Map(genreTaxonomies.map((taxonomy) => [taxonomy.id, taxonomy.data.name]));
+const workRecords = works.map((work) => {
+  const genreIds = [...new Set([...work.data.genreRefs.map((reference) => reference.id), ...work.data.genres.map(taxonomyId)])];
+  const genres = [...new Set([...work.data.genres, ...work.data.genreRefs.map((reference) => genreLabelsById.get(reference.id) ?? reference.id)])];
+  return {
+    id: work.id,
+    title: work.data.title,
+    originalTitle: work.data.originalTitle,
+    synopsis: work.data.synopsis,
+    mediaType: work.data.mediaType,
+    releaseYear: work.data.releaseYear,
+    season: work.data.season,
+    genres,
+    genreIds,
+  };
+});
+const genreOptions = new Map(genreTaxonomies.map((taxonomy) => [taxonomy.id, taxonomy.data.name]));
+for (const work of workRecords) for (const genre of work.genres) genreOptions.set(taxonomyId(genre), genreOptions.get(taxonomyId(genre)) ?? genre);
+const years = [...new Set(workRecords.flatMap((work) => work.releaseYear ? [work.releaseYear] : []))].sort((a, b) => b - a);
+---
+
+<Layout title="Catálogo de obras" description="Explore o catálogo editorial de obras de anime e mangá.">
+  <header class="heading">
+    <p class="eyebrow">CATÁLOGO</p>
+    <h1>Obras</h1>
+    <p>Explore anime e mangá por formato, gênero, ano, temporada ou busca.</p>
+  </header>
+
+  {works.length === 0 ? (
+    <EmptyState title="Catálogo em construção" message="As obras serão listadas quando houver informações editoriais verificadas." />
+  ) : (
+    <>
+      <form id="work-filters" class="filters" role="search">
+        <label for="work-query">Buscar no catálogo
+          <input id="work-query" name="query" type="search" autocomplete="off" placeholder="Título, descrição ou gênero" />
+        </label>
+        <label for="work-type">Tipo
+          <select id="work-type" name="mediaType"><option value="">Todos</option><option value="anime">Anime</option><option value="manga">Mangá</option></select>
+        </label>
+        <label for="work-genre">Gênero
+          <select id="work-genre" name="genre"><option value="">Todos</option>{[...genreOptions].sort((a, b) => a[1].localeCompare(b[1], 'pt-BR')).map(([id, label]) => <option value={id}>{label}</option>)}</select>
+        </label>
+        <label for="work-year">Ano
+          <select id="work-year" name="year"><option value="">Todos</option>{years.map((year) => <option value={year}>{year}</option>)}</select>
+        </label>
+        <label for="work-season">Temporada
+          <select id="work-season" name="season"><option value="">Todas</option>{Object.entries(seasonLabels).map(([season, label]) => <option value={season}>{label}</option>)}</select>
+        </label>
+        <button type="reset" class="reset">Limpar filtros</button>
+      </form>
+
+      <p id="filter-count" class="filter-count" role="status" aria-live="polite"></p>
+      <div id="work-catalog" class="grid" data-works={JSON.stringify(workRecords)}>
+        {works.map((work) => {
+          const record = workRecords.find((candidate) => candidate.id === work.id)!;
+          return <article class="work" data-work-id={work.id}>
+            <a class="work-link" href={basePath(`/obras/${work.id}/`)}>
+              {work.data.cover && <img src={basePath(work.data.cover)} alt={work.data.coverAlt || `Capa de ${work.data.title}`} loading="lazy" />}
+              {work.data.coverCredit && <small class="cover-credit">Imagem: {work.data.coverCredit}</small>}
+              <span class="work-type">{work.data.mediaType === 'anime' ? 'Anime' : 'Mangá'}{work.data.releaseYear ? ` · ${work.data.releaseYear}` : ''}{work.data.season ? ` · ${seasonLabels[work.data.season]}` : ''}</span>
+              <h2>{work.data.title}</h2>
+            </a>
+            <p class="genres">{record.genres.join(' · ')}</p>
+          </article>;
+        })}
+      </div>
+      <EmptyState title="Nenhuma obra encontrada" message="Tente outros termos ou limpe os filtros para ver o catálogo completo." />
+    </>
+  )}
+
+  <script>
+    import '../../scripts/work-catalog';
+  </script>
+</Layout>
+
+<style>
+  .heading { margin:1rem 0 2rem; }
+  .eyebrow { color:var(--accent);font-size:.75rem;font-weight:700;letter-spacing:.14em; }
+  h1 { margin:0;font-size:clamp(2rem,5vw,3rem); }
+  .heading p:last-child,.genres { color:var(--muted); }
+  .filters { display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));align-items:end;gap:1rem;margin:1.5rem 0; }
+  .filters label { display:grid;gap:.4rem;font-size:.9rem;font-weight:600; }
+  .filters input,.filters select { box-sizing:border-box;width:100%;min-height:2.75rem;padding:.6rem .7rem;border:1px solid var(--border);border-radius:8px;background:var(--card-bg);color:var(--text);font:inherit; }
+  .filters input:focus-visible,.filters select:focus-visible,.reset:focus-visible { outline:3px solid var(--accent);outline-offset:2px; }
+  .reset { min-height:2.75rem;padding:.55rem .85rem;border:1px solid var(--border);border-radius:8px;background:var(--card-bg);color:var(--text);font:inherit;font-weight:600;cursor:pointer; }
+  .reset:hover { border-color:var(--accent); }
+  .filter-count { min-height:1.5rem;color:var(--muted);font-size:.9rem; }
+  .grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:1rem; }
+  .work { min-width:0;padding:1rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--card-bg); }
+  .grid[hidden],.work[hidden],.empty[hidden] { display:none!important; }
+  .work img { width:100%;height:12rem;object-fit:cover;border-radius:6px; }
+  .cover-credit { display:block;color:var(--muted);font-size:.75rem; }
+  .work-type { color:var(--muted);font-size:.85rem; }
+  .work h2 { margin:.3rem 0;font-size:1.15rem; }
+  .work-link { color:var(--text); }
+  .genres { margin:.5rem 0 0;font-size:.9rem; }
+</style>

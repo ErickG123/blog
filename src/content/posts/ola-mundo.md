@@ -7,7 +7,7 @@ tags: ["astro", "minimalista", "tutorial"]
 
 Olá! Este é meu primeiro artigo escrito puramente em Markdown usando a nova Content Layer API.
 
-### Por que simples?
+## Por que simples?
 
 Sites minimalistas carregam instantaneamente e focam no que importa: **o conteúdo**.
 

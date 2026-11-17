@@ -25,8 +25,22 @@ jobs:
           node-version: 24
       - name: Install dependencies
         run: npm ci
+      - name: Type check
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Unit tests
+        run: npm test
       - name: Build site
         run: npm run build
+      - name: Validate static routes and links
+        run: npm run check:static
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: Visual and accessibility smoke
+        run: npm run audit:ui
+      - name: End-to-end smoke tests
+        run: npm run test:e2e
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

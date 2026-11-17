@@ -1,0 +1,7 @@
+---
+import Layout from '../../layouts/Layout.astro'; import EmptyState from '../../components/EmptyState.astro'; import { getCollection } from 'astro:content'; import { basePath, isPublicWork, seasonLabels } from '../../utils/content';
+const works=(await getCollection('works')).filter((work)=>isPublicWork(work)&&work.data.mediaType==='anime'&&work.data.releaseYear&&work.data.season);
+const groups=[...new Set(works.map((work)=>`${work.data.releaseYear}/${work.data.season}`))].sort().reverse();
+---
+<Layout title="Temporadas de anime"><h1>Temporadas</h1><p class="intro">Seleções organizadas com o ano e a estação declarados na ficha da obra.</p>{groups.length?<ul>{groups.map((group)=>{const [year,season]=group.split('/');return <li><a href={basePath(`/temporadas/${year}/${season}/`)}>{seasonLabels[season as keyof typeof seasonLabels]} {year}</a></li>})}</ul>:<EmptyState title="Sem temporadas cadastradas" message="As temporadas aparecerão quando houver obras de anime com ano e estação informados." />}</Layout>
+<style>.intro {color:var(--muted)} ul {padding-left:1.2rem} li {margin:.8rem 0}</style>

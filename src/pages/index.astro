@@ -1,239 +1,88 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import PostCard from '../components/PostCard.astro';
+import EmptyState from '../components/EmptyState.astro';
 import { getCollection } from 'astro:content';
+import { basePath, postDate, publicPosts } from '../utils/content';
 
-const posts = (await getCollection('posts')).sort(
-  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
-);
-
-function formatDate(dateStr: string) {
-  const date = new Date(dateStr + 'T12:00:00');
-  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }).format(date);
-}
-
-function getMonthYear(dateStr: string) {
-  const date = new Date(dateStr + 'T12:00:00');
-  const str = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(date);
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-function getReadingTime(body: string = '') {
-  const words = body.trim().split(/\s+/).filter(Boolean).length;
-  return Math.max(1, Math.ceil(words / 200));
-}
-
-const groupedPosts = posts.reduce((acc, post) => {
-  const monthYear = getMonthYear(post.data.date);
-  if (!acc[monthYear]) acc[monthYear] = [];
-  acc[monthYear].push(post);
-  return acc;
+const posts = publicPosts(await getCollection('posts'));
+const taxonomies = (await getCollection('taxonomies')).filter((taxonomy) => taxonomy.data.type === 'tag');
+const taxonomyTagIds = new Set(taxonomies.map((taxonomy) => taxonomy.id));
+const tagLabels = new Map(taxonomies.map((taxonomy) => [taxonomy.id, taxonomy.data.name]));
+const featured = posts.find((post) => post.data.featured);
+const latest = (featured ? posts.filter((post) => post.id !== featured.id) : posts).slice(0, 6);
+const tagCounts = posts.flatMap((post) => [...new Set([
+  ...post.data.tags,
+  ...post.data.taxonomyRefs.map((reference) => reference.id).filter((id) => taxonomyTagIds.has(id)),
+])]).reduce((counts, tag) => {
+  counts[tag] = (counts[tag] ?? 0) + 1;
+  return counts;
+}, {} as Record<string, number>);
+const monthGroups = posts.reduce((groups, post) => {
+  const date = new Date(`${postDate(post)}T12:00:00Z`);
+  const label = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(date);
+  (groups[label] ??= []).push(post);
+  return groups;
 }, {} as Record<string, typeof posts>);
-
-const tagCounts = posts
-  .flatMap((p) => p.data.tags || [])
-  .reduce((acc, tag) => {
-    acc[tag] = (acc[tag] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
 ---
 
-<Layout title="Feed de Artigos">
-  <div class="search-box">
-    <input type="text" id="search-input" placeholder="Buscar por título ou tag..." />
-  </div>
+<Layout title="Anime & Mangá — artigos e recomendações" description="Notícias, análises, guias e descobertas de anime e mangá em português.">
+  <section class="intro">
+    <p class="eyebrow">ANIME · MANGÁ · CULTURA</p>
+    <h1>Histórias que continuam<br />depois dos créditos.</h1>
+    <p class="lead">Análises, guias e descobertas de anime e mangá, com contexto e sem pressa.</p>
+    <a class="catalog-link" href={basePath('/obras/')}>Explorar catálogo de obras <span aria-hidden="true">→</span></a>
+  </section>
 
-  <div class="layout-grid">
-    <div class="feed">
-      {Object.entries(groupedPosts).map(([monthYear, monthPosts]) => (
-        <section class="month-section" id={`sec-${monthYear.replace(/\s+/g, '-')}`}>
-          <h3 class="month-title">{monthYear}</h3>
-          <ul class="post-list">
-            {monthPosts.map((post) => {
-              const readingTime = getReadingTime(post.body);
-              return (
-                <li class="post-card">
-                  <div class="post-date">
-                    {formatDate(post.data.date)} · {readingTime} min de leitura
-                  </div>
-                  <a href={`${import.meta.env.BASE_URL}/posts/${post.id}`} class="post-title">
-                    {post.data.title}
-                  </a>
-                  <p class="post-desc">{post.data.description}</p>
-                  {post.data.tags && post.data.tags.length > 0 && (
-                    <div class="tags">
-                      {post.data.tags.map((tag: string) => (
-                        <a href={`${import.meta.env.BASE_URL}/tags/${tag}`} class="tag">#{tag}</a>
-                      ))}
-                    </div>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      ))}
+  {featured && <section class="featured"><div><p class="eyebrow">EM DESTAQUE</p><h2><a href={basePath(`/posts/${featured.id}/`)}>{featured.data.title}</a></h2><p>{featured.data.description}</p><a class="read-link" href={basePath(`/posts/${featured.id}/`)}>Ler artigo →</a></div></section>}
+
+  <div class="search-box"><label for="search-input">Buscar artigos</label><input type="search" id="search-input" placeholder="Título, resumo ou tag" /></div>
+
+  <div class="content-grid">
+    <div class="articles">
+      <section class="listing" aria-labelledby="latest-title"><div class="section-heading"><p class="eyebrow">PUBLICAÇÕES</p><h2 id="latest-title">Últimos artigos</h2></div>
+        {latest.length === 0 ? <EmptyState title="O blog está começando" message="Novas publicações aparecerão aqui quando forem adicionadas." /> : <div class="post-list">{latest.map((post) => <PostCard post={post} />)}</div>}
+      </section>
+      <section class="archives"><h2>Arquivo por mês</h2>{Object.entries(monthGroups).map(([month, monthPosts]) => <details><summary>{month} <span>({monthPosts.length})</span></summary><ul>{monthPosts.map((post) => <li><a href={basePath(`/posts/${post.id}/`)}>{post.data.title}</a></li>)}</ul></details>)}</section>
     </div>
-
-    <aside class="sidebar">
-      <div class="sidebar-wrapper">
-        <div class="sidebar-content">
-          <h3>Navegação Rápida</h3>
-          <ul>
-            {Object.keys(groupedPosts).map((monthYear) => (
-              <li>
-                <a href={`#sec-${monthYear.replace(/\s+/g, '-')}`}>{monthYear}</a>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {Object.keys(tagCounts).length > 0 && (
-          <div class="sidebar-content">
-            <h3>Tags</h3>
-            <div class="sidebar-tags-container">
-              {Object.entries(tagCounts).map(([tag, count]) => (
-                <a href={`${import.meta.env.BASE_URL}/tags/${tag}`} class="sidebar-tag">
-                  #{tag} <span class="tag-count">({count})</span>
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+    <aside class="sidebar"><section class="side-panel"><h2>Explore</h2><nav aria-label="Categorias"><a href={basePath('/noticias/')}>Notícias</a><a href={basePath('/animes/')}>Anime</a><a href={basePath('/mangas/')}>Mangá</a><a href={basePath('/reviews/')}>Reviews</a><a href={basePath('/guias/')}>Guias</a><a href={basePath('/temporadas/')}>Temporadas</a></nav></section>
+      {Object.keys(tagCounts).length > 0 && <section class="side-panel"><h2>Tags</h2><div class="tag-cloud">{Object.entries(tagCounts).map(([tag, count]) => <a href={basePath(`/tags/${encodeURIComponent(tag)}/`)}>#{tagLabels.get(tag) ?? tag} <small>{count}</small></a>)}</div></section>}
     </aside>
   </div>
 
-  <script is:inline>
-    document.addEventListener("DOMContentLoaded", () => {
-      const searchInput = document.getElementById("search-input");
-      if (!searchInput) return;
-
-      searchInput.addEventListener("input", (e) => {
-        const query = e.target.value.toLowerCase().trim();
-        const monthSections = document.querySelectorAll(".month-section");
-
-        monthSections.forEach((section) => {
-          const cards = section.querySelectorAll(".post-card");
-          let visibleCardsCount = 0;
-
-          cards.forEach((card) => {
-            const contentText = card.textContent.toLowerCase();
-            if (contentText.includes(query)) {
-              card.style.display = "block";
-              visibleCardsCount++;
-            } else {
-              card.style.display = "none";
-            }
-          });
-
-          if (visibleCardsCount === 0) {
-            section.style.display = "none";
-          } else {
-            section.style.display = "block";
-          }
-        });
-      });
-    });
+  <script>
+    import '../scripts/home-search';
   </script>
 </Layout>
 
 <style>
-  .search-box {
-    margin-bottom: 2.5rem;
-  }
-  #search-input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--card-bg);
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  #search-input:focus {
-    border-color: var(--accent);
-  }
-
-  .layout-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 3rem;
-  }
-  @media (min-width: 768px) {
-    .layout-grid {
-      grid-template-columns: 1fr 250px;
-      align-items: start;
-    }
-  }
-  .month-section { margin-bottom: 3.5rem; }
-  .month-title {
-    font-size: 1.4rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--border);
-    color: var(--text);
-  }
-  .post-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1.5rem; }
-  .post-card {
-    padding: 1.5rem;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--card-bg);
-    transition: border-color 0.2s ease, transform 0.2s ease;
-  }
-  .post-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-  .post-date { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem; }
-  .post-title { font-size: 1.25rem; font-weight: 600; display: block; margin-bottom: 0.5rem; text-decoration: none; }
-  .post-title:hover { text-decoration: none; opacity: 0.8; }
-  .post-desc { margin: 0; color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
-  
-  .tags { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
-  .tag { font-size: 0.85rem; color: var(--accent); background: var(--code-bg); padding: 0.2rem 0.6rem; border-radius: 4px; text-decoration: none; transition: opacity 0.2s; }
-  .tag:hover { opacity: 0.8; text-decoration: none; }
-
-  .sidebar-wrapper {
-    position: sticky;
-    top: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  .sidebar-content {
-    padding: 1.5rem;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--card-bg);
-  }
-  .sidebar-content h3 { margin-top: 0; margin-bottom: 1.2rem; font-size: 1.1rem; color: var(--text); }
-  .sidebar-content ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.8rem; }
-  .sidebar-content a { color: var(--muted); font-size: 0.95rem; text-decoration: none; }
-  .sidebar-content a:hover { color: var(--accent); }
-
-  .sidebar-tags-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-  .sidebar-tag {
-    font-size: 0.8rem;
-    color: var(--text);
-    background: var(--code-bg);
-    border: 1px solid var(--border);
-    padding: 0.25rem 0.6rem;
-    border-radius: 6px;
-    text-decoration: none;
-    transition: border-color 0.2s, color 0.2s;
-  }
-  .sidebar-tag:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    text-decoration: none;
-  }
-  .tag-count {
-    color: var(--muted);
-    font-size: 0.75rem;
-  }
+  .intro { padding:2.5rem 0 3rem; border-bottom:1px solid var(--border); }
+  .eyebrow { color:var(--accent); font-size:.75rem; font-weight:700; letter-spacing:.14em; }
+  h1 { max-width:720px; margin:.7rem 0 1rem; font-size:clamp(2.25rem,7vw,4.6rem); letter-spacing:-.045em; line-height:1.03; }
+  .lead { max-width:600px; color:var(--muted); font-size:1.1rem; }
+  .catalog-link,.read-link { display:inline-block; margin-top:.6rem; font-weight:600; }
+  .featured { margin:2rem 0; padding:2rem; border-left:3px solid var(--accent); background:var(--card-bg); border-radius:0 var(--radius) var(--radius) 0; }
+  .featured h2 { margin:.4rem 0; font-size:clamp(1.5rem,4vw,2.2rem); }
+  .featured h2 a { color:var(--text); }
+  .featured p:not(.eyebrow) { color:var(--muted); }
+  .search-box { margin:2rem 0; display:grid; gap:.5rem; }
+  .search-box label { font-size:.9rem; font-weight:600; }
+  .search-box input { width:100%; box-sizing:border-box; padding:.85rem 1rem; color:var(--text); background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); font:inherit; }
+  .content-grid { display:grid; grid-template-columns:minmax(0,1fr); gap:2rem; }
+  .post-list { display:grid; gap:1rem; }
+  .section-heading h2,.archives h2 { margin:0 0 1rem; font-size:1.5rem; }
+  .section-heading .eyebrow { margin-bottom:.25rem; }
+  .sidebar { display:grid; align-content:start; gap:1rem; }
+  .side-panel { padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius); background:var(--card-bg); }
+  .side-panel h2 { margin:0 0 .8rem; font-size:1rem; }
+  .side-panel nav { display:grid; gap:.55rem; }
+  .tag-cloud { display:flex; flex-wrap:wrap; gap:.5rem; }
+  .tag-cloud a { padding:.3rem .5rem; border-radius:6px; background:var(--code-bg); font-size:.85rem; }
+  .tag-cloud small { color:var(--muted); }
+  .archives { margin-top:3rem; }
+  details { padding:.8rem 0; border-bottom:1px solid var(--border); }
+  summary { cursor:pointer; font-weight:600; }
+  summary span { color:var(--muted); font-weight:400; }
+  details ul { margin:.6rem 0 0; padding-left:1.25rem; }
+  @media (min-width:800px) { .content-grid { grid-template-columns:minmax(0,1fr) 240px; gap:2.5rem; } .sidebar { position:sticky; top:1rem; } }
 </style>

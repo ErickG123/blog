@@ -1,22 +1,20 @@
 import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
 import type { APIContext } from 'astro';
+import { basePath, postDate, publicPosts } from '../utils/content';
 
 export async function GET(context: APIContext) {
-  const posts = await getCollection('posts');
-  const sortedPosts = posts.sort(
-    (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
-  );
+  const sortedPosts = publicPosts(await getCollection('posts'));
 
   return rss({
-    title: 'Meu Feed de Artigos',
-    description: 'Feed de artigos do meu blog minimalista',
-    site: context.site ? context.site.toString() : 'https://erickg123.github.io/blog',
+    title: 'Anime & Mangá — artigos',
+    description: 'Notícias, análises, guias e descobertas de anime e mangá.',
+    site: context.site ? new URL(basePath('/'), context.site).toString() : 'https://erickg123.github.io/blog/',
     items: sortedPosts.map((post) => ({
       title: post.data.title,
-      pubDate: new Date(post.data.date + 'T12:00:00'),
+      pubDate: new Date(postDate(post) + 'T12:00:00Z'),
       description: post.data.description,
-      link: `${import.meta.env.BASE_URL}/posts/${post.id}`,
+      link: basePath(`/posts/${post.id}/`),
     })),
   });
 }

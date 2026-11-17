@@ -6,6 +6,12 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
+    "typecheck": "astro check",
+    "lint": "eslint \"src/**/*.{js,ts,astro}\" \"e2e/**/*.ts\" \"scripts/**/*.mjs\" \"*.{mjs,ts}\"",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "check:static": "node scripts/check-static-output.mjs",
+    "audit:ui": "node scripts/phase11-visual-audit.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -15,6 +21,15 @@
     "astro": "^7.3.2"
   },
   "devDependencies": {
-    "typescript": "^5.7.3"
+    "@astrojs/check": "^0.9.12",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.1",
+    "eslint": "^10.15.0",
+    "eslint-plugin-astro": "^3.2.1",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.73.0",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0"
   }
 }

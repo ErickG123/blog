@@ -1,0 +1,12 @@
+---
+import type { BlogPost } from '../utils/content';
+import PostCard from './PostCard.astro';
+import EmptyState from './EmptyState.astro';
+interface Props { title: string; description: string; posts: BlogPost[]; }
+const { title, description, posts } = Astro.props;
+---
+<section class="heading"><a href={`${import.meta.env.BASE_URL}/`}>← Início</a><p class="eyebrow">CATEGORIA</p><h1>{title}</h1><p>{description}</p></section>
+{posts.length ? <div class="list">{posts.map((post) => <PostCard post={post} />)}</div> : <EmptyState title="Ainda sem publicações" message="Quando houver conteúdo publicado nesta categoria, ele aparecerá aqui." />}
+<style>
+  .heading { margin:1rem 0 2rem; } .heading>a { color:var(--muted); } .eyebrow { margin:1.4rem 0 .25rem; color:var(--accent); font-size:.75rem; font-weight:700; letter-spacing:.14em; } h1 { margin:0; font-size:clamp(2rem,5vw,3rem); } .heading p:last-child { color:var(--muted); } .list { display:grid; gap:1rem; }
+</style>

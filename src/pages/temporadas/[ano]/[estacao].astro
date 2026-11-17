@@ -1,0 +1,7 @@
+---
+import Layout from '../../../layouts/Layout.astro'; import EmptyState from '../../../components/EmptyState.astro'; import { getCollection } from 'astro:content'; import { basePath, isPublicWork, seasonLabels } from '../../../utils/content';
+type Season = 'winter' | 'spring' | 'summer' | 'fall';
+export async function getStaticPaths() { const works=(await getCollection('works')).filter(isPublicWork); const groups=[...new Set(works.filter((work)=>work.data.mediaType==='anime'&&work.data.releaseYear&&work.data.season).map((work)=>`${work.data.releaseYear}/${work.data.season}`))]; return groups.map((group)=>{const [ano,estacao]=group.split('/');return {params:{ano,estacao}}}); }
+const {ano,estacao}=Astro.params; const season=estacao as Season; const works=(await getCollection('works')).filter((work)=>isPublicWork(work)&&work.data.mediaType==='anime'&&String(work.data.releaseYear)===ano&&work.data.season===season);
+---
+<Layout title={`Anime — ${seasonLabels[season]} ${ano}`}><a href={basePath('/temporadas/')}>← Temporadas</a><h1>{seasonLabels[season]} {ano}</h1>{works.length?<ul>{works.map((work)=><li><a href={basePath(`/obras/${work.id}/`)}>{work.data.title}</a></li>)}</ul>:<EmptyState title="Temporada sem obras" message="Não há obras cadastradas para esta temporada." />}</Layout>

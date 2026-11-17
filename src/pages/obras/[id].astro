@@ -1,0 +1,15 @@
+---
+import Layout from '../../layouts/Layout.astro'; import EmptyState from '../../components/EmptyState.astro'; import PostCard from '../../components/PostCard.astro'; import { getCollection, render } from 'astro:content'; import { basePath, isPublicWork, publicPosts } from '../../utils/content';
+export async function getStaticPaths() { const works=(await getCollection('works')).filter(isPublicWork); return Promise.all(works.map(async (work) => ({ params:{id:work.id}, props:{work, rendered:await render(work)} }))); }
+const { work, rendered } = Astro.props; const { Content }=rendered; const allPosts=publicPosts(await getCollection('posts')); const relatedPosts=allPosts.filter((post)=>post.data.works.some((reference)=>reference.id===work.id));
+const otherWorks=(await getCollection('works')).filter(isPublicWork); const related=work.data.relatedWorks.map((reference)=>otherWorks.find((candidate)=>candidate.id===reference.id)).filter(Boolean);
+---
+<Layout title={work.data.title} description={work.data.synopsis} type="article">
+<article class="work-page"><a href={basePath('/obras/')}>← Catálogo</a><p class="eyebrow">{work.data.mediaType==='anime'?'ANIME':'MANGÁ'}{work.data.releaseYear ? ` · ${work.data.releaseYear}`:''}</p>{work.data.cover&&<figure class="cover-figure"><img class="cover" src={basePath(work.data.cover)} alt={work.data.coverAlt || `Capa de ${work.data.title}`} />{work.data.coverCredit&&<figcaption>Imagem: <a href={work.data.coverSource} target="_blank" rel="noopener noreferrer">{work.data.coverCredit}</a></figcaption>}</figure>}
+<h1>{work.data.title}</h1>{work.data.originalTitle&&<p class="original">{work.data.originalTitle}</p>}<p class="genres">{work.data.genres.join(' · ')}</p><div class="synopsis"><Content /></div>
+{work.data.status&&<p><strong>Status:</strong> {work.data.status}</p>}{work.data.sources.length>0&&<section class="sources"><h2>Fontes</h2><ul>{work.data.sources.map((source)=><li><a href={source.url} target="_blank" rel="noopener noreferrer">{source.label}</a></li>)}</ul></section>}{related.length>0&&<section><h2>Obras relacionadas</h2><ul>{related.map((item)=><li><a href={basePath(`/obras/${item!.id}/`)}>{item!.data.title}</a></li>)}</ul></section>}
+<section><h2>Artigos relacionados</h2>{relatedPosts.length?<div class="posts">{relatedPosts.map((post)=><PostCard post={post} />)}</div>:<EmptyState title="Sem artigos relacionados" message="Ainda não há artigos publicados associados a esta obra." />}</section></article>
+</Layout>
+<style>
+ .work-page>a { color:var(--muted); }.eyebrow { margin:1.5rem 0 .4rem;color:var(--accent);font-size:.8rem;font-weight:700;letter-spacing:.12em; }.cover-figure { float:right;width:min(32%,260px);margin:0 0 1rem 2rem; }.cover { width:100%;max-height:360px;object-fit:cover;border-radius:var(--radius); }.cover-figure figcaption { color:var(--muted);font-size:.8rem; }.cover-figure figcaption a { color:var(--accent); } h1 { margin:.2rem 0;font-size:clamp(2rem,5vw,3.5rem); }.original,.genres { color:var(--muted); }.synopsis { max-width:760px;line-height:1.8; }.work-page section { clear:both;margin-top:3rem; }.posts { display:grid;gap:1rem; }
+</style>
