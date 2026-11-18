@@ -1,4 +1,5 @@
 import { chromium } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
@@ -88,7 +89,17 @@ for (const viewport of viewports) {
           },
         };
       });
-      results.push({ viewport: viewport.name, theme, route, ...audit });
+      const accessibility = await new AxeBuilder({ page })
+        .exclude('#giscus-container')
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'])
+        .analyze();
+      const axeViolations = accessibility.violations.map(({ id, impact, help, nodes }) => ({
+        id,
+        impact,
+        help,
+        nodes: nodes.map(({ target, failureSummary }) => ({ target, failureSummary })),
+      }));
+      results.push({ viewport: viewport.name, theme, route, axeViolations, ...audit });
       if (screenshotRoutes.has(route)) {
         await page.screenshot({ path: `${output}/${viewport.name}-${theme}-${route === '/' ? 'home' : route.replaceAll('/', '-')}.png`, fullPage: true });
       }
@@ -106,6 +117,7 @@ const failures = results.flatMap((result) => {
   if (result.unnamedLinks || result.unnamedButtons || result.unlabeledFields || result.imagesWithoutAlt) problems.push('accessible name/label/alt');
   if (result.focusOutlineWidth < 2.5 || !result.reducedMotion) problems.push('focus/reduced-motion');
   if (result.contrast.text < 4.5 || result.contrast.muted < 4.5 || result.contrast.accent < 4.5 || result.contrast.border < 3) problems.push('theme-token contrast');
+  if (result.axeViolations.length) problems.push(`axe: ${result.axeViolations.map(({ id }) => id).join(', ')}`);
   return problems.map((problem) => `${result.viewport}/${result.theme}${result.route}: ${problem}`);
 });
 if (failures.length) {

@@ -47,3 +47,25 @@ export function filterWorks<T extends FilterableWork>(works: T[], filters: WorkF
     return true;
   });
 }
+
+export interface SearchableItem {
+  id: string;
+  kind: 'post' | 'work';
+  categoryLabel: string;
+  title: string;
+  description: string;
+  href: string;
+  tags: string[];
+  works?: string[];
+}
+
+export function filterSearchableItems<T extends SearchableItem>(items: T[], rawQuery: string): T[] {
+  const query = normalizeSearchText(rawQuery);
+  if (!query) return items;
+  return items.filter((item) => {
+    const searchable = normalizeSearchText(
+      [item.title, item.description, item.categoryLabel, ...item.tags, ...(item.works ?? [])].filter(Boolean).join(' '),
+    );
+    return searchable.includes(query);
+  });
+}

@@ -2,11 +2,98 @@
 import type { BlogPost } from '../utils/content';
 import PostCard from './PostCard.astro';
 import EmptyState from './EmptyState.astro';
-interface Props { title: string; description: string; posts: BlogPost[]; }
-const { title, description, posts } = Astro.props;
+import { basePath } from '../utils/content';
+
+interface Props {
+  title: string;
+  description: string;
+  posts: BlogPost[];
+  activeTag?: string;
+}
+const { title, description, posts, activeTag } = Astro.props;
+const gridClass = posts.length === 1 ? 'post-list--cols-1' : 'post-list--cols-2';
 ---
-<section class="heading"><a href={`${import.meta.env.BASE_URL}/`}>← Início</a><p class="eyebrow">CATEGORIA</p><h1>{title}</h1><p>{description}</p></section>
-{posts.length ? <div class="list">{posts.map((post) => <PostCard post={post} />)}</div> : <EmptyState title="Ainda sem publicações" message="Quando houver conteúdo publicado nesta categoria, ele aparecerá aqui." />}
+
+<section class="collection-page">
+  <header class="collection-heading">
+    <div class="heading-top">
+      <a class="back-link" href={basePath('/')}>← Início</a>
+      <span class="collection-count">{posts.length} {posts.length === 1 ? 'publicação' : 'publicações'}</span>
+    </div>
+    <h1>{title}</h1>
+    <p class="description">{description}</p>
+  </header>
+
+  {posts.length > 0 ? (
+    <div class:list={['post-list', gridClass]}>
+      {posts.map((post) => <PostCard post={post} activeTag={activeTag} />)}
+    </div>
+  ) : (
+    <EmptyState
+      title="Nenhuma publicação por enquanto"
+      message={activeTag ? 'Ainda não há artigos publicados com esta tag.' : 'Novas publicações desta categoria aparecerão aqui assim que forem revisadas e publicadas.'}
+      actionHref={basePath('/')}
+      actionLabel="Voltar para a Home"
+    />
+  )}
+</section>
+
 <style>
-  .heading { margin:1rem 0 2rem; } .heading>a { color:var(--muted); } .eyebrow { margin:1.4rem 0 .25rem; color:var(--accent); font-size:.75rem; font-weight:700; letter-spacing:.14em; } h1 { margin:0; font-size:clamp(2rem,5vw,3rem); } .heading p:last-child { color:var(--muted); } .list { display:grid; gap:1rem; }
+  .collection-page {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .collection-heading {
+    display: grid;
+    gap: .4rem;
+    padding: 0 0 1.25rem;
+    border-bottom: 1px solid var(--line-subtle);
+  }
+  .heading-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .25rem;
+  }
+  .back-link {
+    color: var(--muted);
+    font-size: .82rem;
+    font-weight: 650;
+    text-decoration: none;
+  }
+  .back-link:hover { color: var(--accent); }
+  .collection-count {
+    padding: .18rem .55rem;
+    border-radius: 999px;
+    background: var(--surface-soft);
+    color: var(--muted);
+    font-size: .76rem;
+    font-weight: 700;
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+    letter-spacing: -.03em;
+  }
+  .description {
+    max-width: 62ch;
+    margin: 0;
+    color: var(--muted);
+    font-size: .96rem;
+  }
+  .post-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+  .post-list--cols-1 {
+    grid-template-columns: minmax(0, 44rem);
+  }
+  @media (max-width: 720px) {
+    .post-list {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
 </style>

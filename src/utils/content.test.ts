@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { basePath, formatDate, isPublicPost, isPublicWork, postDate, postUpdatedDate, readingTime, sortPosts, type BlogPost, type BlogWork } from './content';
+import { basePath, formatDate, isPublicPost, isPublicWork, mergeWithFixtures, postDate, postUpdatedDate, readingTime, sortPosts, type BlogPost, type BlogWork } from './content';
 
 describe('content helpers', () => {
   it('estimates at least one minute and rounds up every 200 words', () => {
@@ -36,5 +36,12 @@ describe('content helpers', () => {
 
   it('prefixes internal links with the project base path', () => {
     expect(basePath('/posts/a/', '/blog')).toBe('/blog/posts/a/');
+  });
+
+  it('keeps dev fixtures isolated when disabled and merges non-conflicting entries when enabled', () => {
+    const real = [{ id: 'ola-mundo' }];
+    const fixtures = [{ id: 'fixture-a' }, { id: 'ola-mundo' }];
+    expect(mergeWithFixtures(real, fixtures, false)).toEqual([{ id: 'ola-mundo' }]);
+    expect(mergeWithFixtures(real, fixtures, true)).toEqual([{ id: 'ola-mundo' }, { id: 'fixture-a' }]);
   });
 });

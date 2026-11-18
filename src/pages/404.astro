@@ -1,56 +1,87 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { basePath } from '../utils/content';
 ---
 
-<Layout title="Página Não Encontrada">
-  <div class="not-found-container">
-    <span class="error-code">404</span>
-    <h1>Página não encontrada</h1>
-    <p>O artigo ou página que você procurou não existe ou mudou de endereço.</p>
-    <a href={`${import.meta.env.BASE_URL}/`} class="home-btn">Voltar ao início</a>
-  </div>
+<Layout title="Página não encontrada">
+  <section class="not-found" aria-labelledby="not-found-title">
+    <div class="not-found-card">
+      <p class="code">Erro 404</p>
+      <h1 id="not-found-title">Página não encontrada</h1>
+      <p class="message">O endereço solicitado pode ter mudado, estar incompleto ou ainda não existir no blog.</p>
+      <div class="actions">
+        <a class="home-link" href={basePath('/')}>Voltar ao início</a>
+        <a class="secondary-link" href={basePath('/obras/')}>Explorar catálogo</a>
+        <a class="secondary-link" href={basePath('/noticias/')}>Ver notícias</a>
+      </div>
+    </div>
+  </section>
 </Layout>
 
 <style>
-  .not-found-container {
-    text-align: center;
-    padding: 5rem 1rem;
-    max-width: 500px;
-    margin: 0 auto;
+  .not-found {
+    display: grid;
+    place-items: center;
+    padding: 2.5rem 0;
   }
-  .error-code {
-    font-size: 5rem;
-    font-weight: 800;
+  .not-found-card {
+    width: min(100%, 40rem);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border: 1px solid var(--line-subtle);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  .code {
+    display: inline-block;
+    margin: 0 0 .6rem;
+    padding: .2rem .55rem;
+    border-radius: 4px;
+    background: var(--accent-soft);
     color: var(--accent);
-    line-height: 1;
-    display: block;
-    margin-bottom: 1rem;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
   }
   h1 {
-    font-size: 2rem;
-    margin: 0 0 1rem 0;
-    color: var(--text);
+    margin: 0;
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    letter-spacing: -.03em;
   }
-  p {
+  .message {
+    margin: .6rem 0 1.35rem;
     color: var(--muted);
-    font-size: 1.05rem;
-    margin-bottom: 2rem;
-    line-height: 1.6;
+    font-size: .96rem;
   }
-  .home-btn {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--card-bg);
-    color: var(--text);
-    font-weight: 500;
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .65rem;
+    align-items: center;
+  }
+  .home-link,
+  .secondary-link {
+    padding: .55rem .95rem;
+    border-radius: var(--radius-sm);
+    font-size: .86rem;
+    font-weight: 700;
     text-decoration: none;
-    transition: border-color 0.2s, color 0.2s;
   }
-  .home-btn:hover {
+  .home-link {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .home-link:hover {
+    background: var(--accent);
+    color: var(--accent-contrast);
+  }
+  .secondary-link {
+    border: 1px solid var(--line-subtle);
+    background: var(--surface-soft);
+    color: var(--ink);
+  }
+  .secondary-link:hover {
     border-color: var(--accent);
     color: var(--accent);
-    text-decoration: none;
   }
 </style>

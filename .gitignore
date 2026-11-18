@@ -3,4 +3,8 @@ node_modules/
 .astro/
 .DS_Store
 test-results/
+artifacts/phase12-1-visual/
+artifacts/phase12-2-visual/
+artifacts/phase12-3-visual/
+artifacts/phase12-4-visual/
 playwright-report/

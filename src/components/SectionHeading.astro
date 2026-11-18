@@ -1,0 +1,59 @@
+---
+interface Props {
+  eyebrow?: string;
+  title: string;
+  id?: string;
+  description?: string;
+  actionHref?: string;
+  actionLabel?: string;
+}
+
+const { eyebrow, title, id, description, actionHref, actionLabel } = Astro.props;
+---
+
+<div class="section-heading">
+  <div>
+    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+    <h2 id={id}>{title}</h2>
+    {description && <p class="description">{description}</p>}
+  </div>
+  {actionHref && actionLabel && <a class="section-action" href={actionHref}>{actionLabel}<span aria-hidden="true"> →</span></a>}
+</div>
+
+<style>
+  .section-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .5rem 1rem;
+    margin-bottom: 1.1rem;
+  }
+  .eyebrow {
+    margin: 0 0 .2rem;
+    color: var(--accent);
+    font-size: .74rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  h2 {
+    margin: 0;
+    font-size: clamp(1.3rem, 2.2vw, 1.65rem);
+    letter-spacing: -.025em;
+  }
+  .description {
+    max-width: 60ch;
+    margin: .3rem 0 0;
+    color: var(--muted);
+    font-size: .9rem;
+  }
+  .section-action {
+    flex: 0 0 auto;
+    color: var(--accent);
+    font-size: .84rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .section-action:hover { text-decoration: underline; }
+</style>

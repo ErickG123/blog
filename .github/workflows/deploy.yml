@@ -18,9 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24
       - name: Install dependencies
@@ -41,6 +41,8 @@ jobs:
         run: npm run audit:ui
       - name: End-to-end smoke tests
         run: npm run test:e2e
+      - name: Audit production dependencies
+        run: npm audit --omit=dev
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

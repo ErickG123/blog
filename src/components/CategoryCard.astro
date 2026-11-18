@@ -1,0 +1,95 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  href: string;
+  icon: 'news' | 'anime' | 'manga' | 'review' | 'guide' | 'catalog';
+}
+const { title, description, href, icon } = Astro.props;
+---
+
+<a class="category-card" href={href}>
+  <span class="icon" aria-hidden="true">
+    {icon === 'news' && <svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5" /></svg>}
+    {icon === 'anime' && <svg viewBox="0 0 24 24"><rect x="3.5" y="6" width="17" height="13" rx="1.5" /><path d="m10 10 5 2.5-5 2.5zM8 3l2 3m6-3-2 3" /></svg>}
+    {icon === 'manga' && <svg viewBox="0 0 24 24"><path d="M4 5.5c3.3-.8 5.9-.3 8 1.2v13c-2.1-1.5-4.7-2-8-1.2zM20 5.5c-3.3-.8-5.9-.3-8 1.2v13c2.1-1.5 4.7-2 8-1.2z" /></svg>}
+    {icon === 'review' && <svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" /></svg>}
+    {icon === 'guide' && <svg viewBox="0 0 24 24"><path d="M5 4.5h14v15H5zM8 8h8M8 12h8M8 16h5" /></svg>}
+    {icon === 'catalog' && <svg viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1" /><rect x="13.5" y="4" width="6.5" height="6.5" rx="1" /><rect x="4" y="13.5" width="6.5" height="6.5" rx="1" /><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1" /></svg>}
+  </span>
+  <span class="copy">
+    <strong>{title}</strong>
+    {description && <span class="description">{description}</span>}
+  </span>
+  <span class="arrow" aria-hidden="true">→</span>
+</a>
+
+<style>
+  .category-card {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: .95rem;
+    padding: 1rem 1.15rem;
+    border: 1px solid var(--line-subtle);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    color: var(--ink);
+    text-decoration: none;
+    transition: border-color .16s ease, box-shadow .16s ease;
+  }
+  .category-card:hover,
+  .category-card:focus-visible {
+    border-color: var(--line);
+    box-shadow: var(--shadow-sm);
+  }
+  .category-card:hover .copy strong,
+  .category-card:focus-visible .copy strong {
+    color: var(--accent);
+  }
+  .icon {
+    display: grid;
+    width: 2.55rem;
+    height: 2.55rem;
+    flex: 0 0 auto;
+    place-items: center;
+    border-radius: var(--radius-sm);
+    background: var(--surface-soft);
+    color: var(--blue);
+  }
+  .icon svg {
+    width: 1.2rem;
+    height: 1.2rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.75;
+  }
+  .copy {
+    display: grid;
+    min-width: 0;
+    gap: .22rem;
+  }
+  strong {
+    font-size: 1rem;
+    font-weight: 750;
+    line-height: 1.25;
+  }
+  .description {
+    color: var(--muted);
+    font-size: .84rem;
+    line-height: 1.45;
+  }
+  .arrow {
+    margin-left: auto;
+    padding-left: .25rem;
+    color: var(--muted);
+    font-size: .95rem;
+    transition: transform .16s ease, color .16s ease;
+  }
+  .category-card:hover .arrow {
+    color: var(--accent);
+    transform: translateX(2px);
+  }
+</style>

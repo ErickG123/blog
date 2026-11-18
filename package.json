@@ -12,6 +12,9 @@
     "test:e2e": "playwright test",
     "check:static": "node scripts/check-static-output.mjs",
     "audit:ui": "node scripts/phase11-visual-audit.mjs",
+    "audit:ui:phase12": "node scripts/phase12-visual-audit.mjs",
+    "audit:ui:phase12-1": "node scripts/phase12-1-visual-audit.mjs",
+    "audit:ui:phase12-2": "node scripts/phase12-2-visual-audit.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -22,9 +25,10 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
-    "@eslint/js": "^10.0.1",
+    "@axe-core/playwright": "^4.14.0",
+    "@eslint/js": "^9.39.5",
     "@playwright/test": "^1.65.1",
-    "eslint": "^10.15.0",
+    "eslint": "^9.39.5",
     "eslint-plugin-astro": "^3.2.1",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "typescript": "^5.7.3",

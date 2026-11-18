@@ -40,7 +40,7 @@ Evoluir o blog Astro para descoberta editorial brasileira de anime e mangá, pre
 - [x] RNF-002 Interação com JavaScript pequeno e scripts nativos.
 - [x] RNF-003 TypeScript strict herdado da configuração Astro.
 - [x] RNF-004 Validação de schemas no build.
-- [~] RNF-005 Foco visível, nomes/labels, landmarks, headings, alt, movimento reduzido e contraste de tokens cobertos por smoke local; leitor de tela e verificação manual completa pendentes.
+- [~] RNF-005 Foco visível, nomes/labels, landmarks, headings, alt, movimento reduzido e axe-core (WCAG 2.1 A/AA + best-practice) cobertos por smoke local, com iframe externo Giscus excluído; leitor de tela e verificação manual completa pendentes.
 - [x] RNF-006 Matriz das rotas disponíveis em desktop/tablet/mobile, claro/escuro sem overflow; páginas de detalhe sem conteúdo cadastrado não puderam ser avaliadas.
 - [x] RNF-007 Tokens de tema light/dark consistentes.
 - [x] RNF-008 Metadados e JSON-LD de artigo; smoke de sitemap e RSS.
@@ -82,3 +82,13 @@ Paleta semântica em `Layout.astro`: fundo, texto, muted, accent, border, code-b
 | RF-019..020 | 02, 05 | Schema e template do artigo |
 | RF-021..022, RF-024..025 | 02..10 | filtro público, RSS, build e link audit |
 | RNF-001..012 | todas | CI configurado; validações locais e limitações descritas no relatório da fase 11 |
+
+## Revisão da experiência visual — Fase 12
+
+A implementação visual usa tokens paper/ink para claro/escuro, acentos semânticos, foco visível, espaçamento e containers compartilhados. A navegação inclui notícias, anime, mangá, reviews, guias, catálogo e temporadas; a home pode renderizar seções de anime/mangá/reviews/guias somente quando houver entradas públicas, preservando estados vazios sem conteúdo fictício. Detalhes da avaliação e limites de tela sem obras reais estão em `docs/audits/AUDIT-PHASE-12-UI.md` e `docs/reports/VISUAL-VALIDATION-PHASE-12.md`.
+
+As URLs estáveis e funcionalidades de artigo/catalogação listadas nos requisitos continuam em vigor. A matriz visual da Fase 12 validou 156 combinações locais. A Fase 12.1 acrescentou baseline comparável e nova captura de 156 combinações; a revisão com leitor de tela, páginas de obra/temporada com dados aprovados, CI remoto verde e avaliação dos alertas de dependência permanecem pendentes. O estado de release permanece NO-GO até essas pendências e a execução remota serem revistas.
+
+## Revisão de direção visual — Fase 12.1
+
+A home prioriza conteúdo publicado, mostra destaque apenas para publicação real elegível e usa categorias com nomes completos. Seções temáticas só aparecem quando há conteúdo. O post técnico legado permanece em `/posts/ola-mundo/`, RSS e tags e aparece na home sob “Arquivo geral”, separado de anime/mangá até decisão editorial aprovada. Não criar autores, obras, imagens, datas, notas ou artigos para preencher estados vazios. Comparação de capturas e limites estão em `docs/reports/VISUAL-COMPARISON-PHASE-12-1.md`; a matriz foi executada nas seis larguras 360, 390, 768, 1280, 1440 e 1920 em ambos os temas. CI remota, tecnologia assistiva e dependências seguem como bloqueios de publicação.

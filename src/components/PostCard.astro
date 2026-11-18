@@ -1,32 +1,219 @@
 ---
 import type { BlogPost } from '../utils/content';
-import { getCollection } from 'astro:content';
 import { basePath, formatDate, postDate, readingTime, typeLabels } from '../utils/content';
+import { loadTaxonomies } from '../utils/dev-fixtures';
 
-interface Props { post: BlogPost; }
-const { post } = Astro.props;
+interface Props {
+  post: BlogPost;
+  variant?: 'default' | 'compact' | 'featured';
+  activeTag?: string;
+  showTags?: boolean;
+}
+const { post, variant = 'default', activeTag, showTags = true } = Astro.props;
 const date = postDate(post);
-const taxonomies = await getCollection('taxonomies');
+const taxonomies = await loadTaxonomies();
 const tagTaxonomies = post.data.taxonomyRefs
   .map((reference) => taxonomies.find((taxonomy) => taxonomy.id === reference.id && taxonomy.data.type === 'tag'))
   .filter((taxonomy) => taxonomy !== undefined);
+const coverSrc = post.data.cover
+  ? (post.data.cover.startsWith('data:') || post.data.cover.startsWith('http') ? post.data.cover : basePath(post.data.cover))
+  : undefined;
 ---
-<article class="post-card">
-  {post.data.cover && <><img class="cover" src={basePath(post.data.cover)} alt="" loading="lazy" />{post.data.coverCredit && <small class="credit">Imagem: <a href={post.data.coverSource} target="_blank" rel="noopener noreferrer">{post.data.coverCredit}</a></small>}</>}
-  <div class="meta">{typeLabels[post.data.type]} · {formatDate(date)} · {readingTime(post.body)} min de leitura</div>
-  <h2><a href={basePath(`/posts/${post.id}/`)}>{post.data.title}</a></h2>
-  <p>{post.data.description}</p>
-  {(post.data.tags.length > 0 || tagTaxonomies.length > 0) && <div class="tags">{post.data.tags.map((tag) => <a href={basePath(`/tags/${encodeURIComponent(tag)}/`)}>#{tag}</a>)}{tagTaxonomies.map((taxonomy) => <a href={basePath(`/tags/${encodeURIComponent(taxonomy.id)}/`)}>#{taxonomy.data.name}</a>)}</div>}
+
+<article class:list={['post-card', `post-card--${variant}`, { 'has-cover': Boolean(coverSrc) }]}>
+  {coverSrc && (
+    <a class="cover-link" href={basePath(`/posts/${post.id}/`)} tabindex="-1" aria-hidden="true">
+      <img class="cover" src={coverSrc} alt="" loading="eager" />
+    </a>
+  )}
+  <div class="card-body">
+    <div class="meta">
+      <span class="type-badge">{typeLabels[post.data.type]}</span>
+      {post.data.rating !== undefined && <span class="rating-badge" aria-label={`Nota ${post.data.rating} de 10`}>★ {post.data.rating.toFixed(1)}</span>}
+      <time datetime={`${date}T12:00:00Z`}>{formatDate(date)}</time>
+      <span aria-hidden="true">·</span>
+      <span>{readingTime(post.body)} min de leitura</span>
+    </div>
+    <h2 class="card-title"><a href={basePath(`/posts/${post.id}/`)}>{post.data.title}</a></h2>
+    <p class="description">{post.data.description}</p>
+    {showTags && (post.data.tags.length > 0 || tagTaxonomies.length > 0) && (
+      <ul class="tags" aria-label="Tags">
+        {post.data.tags.map((tag) => <li><a class:list={{ 'is-active': activeTag === tag }} href={basePath(`/tags/${encodeURIComponent(tag)}/`)}>#{tag}</a></li>)}
+        {tagTaxonomies.map((taxonomy) => <li><a class:list={{ 'is-active': activeTag === taxonomy.id }} href={basePath(`/tags/${encodeURIComponent(taxonomy.id)}/`)}>#{taxonomy.data.name}</a></li>)}
+      </ul>
+    )}
+    {post.data.coverCredit && (
+      <small class="credit">
+        Imagem: <a href={post.data.coverSource} target="_blank" rel="noopener noreferrer">{post.data.coverCredit}</a>
+      </small>
+    )}
+  </div>
 </article>
 
 <style>
-  .post-card { display:grid; gap:.65rem; padding:1.35rem; border:1px solid var(--border); border-radius:var(--radius); background:var(--card-bg); }
-  .post-card[hidden] { display:none; }
-  .post-card h2 { margin:0; font-size:1.2rem; line-height:1.35; }
-  .post-card p { margin:0; color:var(--muted); }
-  .meta { color:var(--muted); font-size:.85rem; }
-  .cover { width:100%; max-height:15rem; object-fit:cover; border-radius:calc(var(--radius) - 4px); }
-  .credit { color:var(--muted);font-size:.75rem; }
-  .tags { display:flex; gap:.5rem; flex-wrap:wrap; }
-  .tags a { color:var(--accent); font-size:.85rem; }
+  .post-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 100%;
+    border: 1px solid var(--line-subtle);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    overflow: hidden;
+    transition: border-color .18s ease, box-shadow .18s ease;
+  }
+  .post-card:hover {
+    border-color: var(--line);
+    box-shadow: var(--shadow-sm);
+  }
+  .post-card[hidden] { display: none !important; }
+  .cover-link {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    background: var(--surface-soft);
+    border-bottom: 1px solid var(--line-subtle);
+  }
+  .cover {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    transition: transform .25s ease;
+  }
+  .post-card:hover .cover {
+    transform: scale(1.02);
+  }
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    gap: .55rem;
+    padding: 1.15rem 1.25rem;
+  }
+  .meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .4rem .55rem;
+    color: var(--muted);
+    font-size: .76rem;
+    line-height: 1.3;
+  }
+  .type-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: .15rem .48rem;
+    border-radius: 4px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .rating-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: .12rem .42rem;
+    border-radius: 4px;
+    background: var(--surface-soft);
+    color: var(--ink);
+    font-size: .72rem;
+    font-weight: 750;
+  }
+  .card-title {
+    margin: 0;
+    font-size: clamp(1.08rem, 1.5vw, 1.28rem);
+    line-height: 1.3;
+    letter-spacing: -.02em;
+  }
+  .card-title a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .card-title a:hover {
+    color: var(--accent);
+  }
+  .description {
+    margin: 0;
+    color: var(--muted);
+    font-size: .9rem;
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+    margin: auto 0 0;
+    padding: .35rem 0 0;
+    list-style: none;
+  }
+  .tags a {
+    display: inline-flex;
+    align-items: center;
+    height: 1.6rem;
+    padding: 0 .48rem;
+    border-radius: 4px;
+    background: var(--surface-soft);
+    color: var(--blue);
+    font-size: .74rem;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+  }
+  .tags a:hover {
+    color: var(--accent);
+  }
+  .tags a.is-active {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .credit {
+    margin-top: .25rem;
+    color: var(--muted);
+    font-size: .72rem;
+  }
+
+  /* Compact variant */
+  .post-card--compact.has-cover {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .post-card--compact .cover-link {
+    width: 11.5rem;
+    flex: 0 0 11.5rem;
+    margin: .95rem 0 .95rem 1.1rem;
+    border: 1px solid var(--line-subtle);
+    border-radius: var(--radius-sm);
+  }
+  .post-card--compact .cover {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+  .post-card--compact .card-body {
+    padding: .95rem 1.1rem;
+    gap: .4rem;
+  }
+  .post-card--compact .card-title {
+    font-size: 1.02rem;
+  }
+  .post-card--compact .description {
+    font-size: .85rem;
+    -webkit-line-clamp: 2;
+  }
+  @media (max-width: 520px) {
+    .post-card--compact.has-cover { flex-direction: column; }
+    .post-card--compact .cover-link { width: 100%; flex: 0 0 auto; margin: 0; border: 0; border-bottom: 1px solid var(--line-subtle); border-radius: 0; }
+    .post-card--compact .cover { aspect-ratio: 16 / 9; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cover { transition: none; }
+  }
 </style>

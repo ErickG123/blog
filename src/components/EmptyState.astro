@@ -1,11 +1,74 @@
 ---
-interface Props { title: string; message: string; }
-const { title, message } = Astro.props;
+interface Props {
+  title: string;
+  message: string;
+  actionHref?: string;
+  actionLabel?: string;
+  hidden?: boolean;
+}
+const { title, message, actionHref, actionLabel, hidden = false } = Astro.props;
 ---
-<section class="empty" aria-live="polite"><h2>{title}</h2><p>{message}</p></section>
+
+<section class="empty-state" aria-live="polite" hidden={hidden ? true : undefined}>
+  <div class="empty-copy">
+    <h2>{title}</h2>
+    <p>{message}</p>
+  </div>
+  {actionHref && actionLabel && (
+    <a class="empty-action" href={actionHref}>
+      {actionLabel}<span aria-hidden="true"> →</span>
+    </a>
+  )}
+</section>
+
 <style>
-  .empty { padding:2rem; border:1px dashed var(--border); border-radius:var(--radius); text-align:center; color:var(--muted); }
-  .empty[hidden] { display:none!important; }
-  .empty h2 { margin:0 0 .5rem; color:var(--text); font-size:1.15rem; }
-  .empty p { margin:0; }
+  .empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .85rem 1.5rem;
+    padding: 1.1rem 1.35rem;
+    border: 1px solid var(--line-subtle);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+  .empty-state[hidden] {
+    display: none !important;
+  }
+  .empty-copy {
+    display: grid;
+    gap: .2rem;
+    max-width: 58ch;
+  }
+  h2 {
+    margin: 0;
+    font-size: 1rem;
+  }
+  p {
+    margin: 0;
+    color: var(--muted);
+    font-size: .88rem;
+    line-height: 1.5;
+  }
+  .empty-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .3rem;
+    height: 2.25rem;
+    padding: 0 .85rem;
+    border: 1px solid var(--line-subtle);
+    border-radius: var(--radius-sm);
+    background: var(--surface-soft);
+    color: var(--ink);
+    font-size: .84rem;
+    font-weight: 650;
+    line-height: 1;
+    text-decoration: none;
+  }
+  .empty-action:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
 </style>

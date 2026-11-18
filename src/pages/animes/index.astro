@@ -1,5 +1,11 @@
 ---
-import Layout from '../../layouts/Layout.astro'; import PostListing from '../../components/PostListing.astro'; import { getCollection } from 'astro:content'; import { postsOfType } from '../../utils/content';
-const posts = postsOfType(await getCollection('posts'), 'anime');
+import Layout from '../../layouts/Layout.astro';
+import PostListing from '../../components/PostListing.astro';
+import { postsOfType } from '../../utils/content';
+import { loadPosts } from '../../utils/dev-fixtures';
+
+const posts = postsOfType(await loadPosts(), 'anime');
 ---
-<Layout title="Artigos sobre anime"><PostListing title="Anime" description="Artigos e análises sobre anime." posts={posts} /></Layout>
+<Layout title="Artigos sobre anime">
+  <PostListing title="Anime" description="Artigos, ensaios e cobertura sobre séries e filmes de animação japonesa." posts={posts} />
+</Layout>

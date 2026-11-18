@@ -2,6 +2,14 @@ import type { CollectionEntry } from 'astro:content';
 
 export type BlogPost = CollectionEntry<'posts'>;
 export type BlogWork = CollectionEntry<'works'>;
+export type BlogAuthor = CollectionEntry<'authors'>;
+export type BlogTaxonomy = CollectionEntry<'taxonomies'>;
+
+export function mergeWithFixtures<T extends { id: string }>(real: T[], fixtures: T[], enabled: boolean): T[] {
+  if (!enabled) return real;
+  const realIds = new Set(real.map((item) => item.id));
+  return [...real, ...fixtures.filter((item) => !realIds.has(item.id))];
+}
 
 export function postDate(post: BlogPost): string {
   return post.data.publishedAt ?? post.data.date ?? '';

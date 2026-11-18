@@ -1,7 +1,120 @@
 ---
-import Layout from '../../layouts/Layout.astro'; import EmptyState from '../../components/EmptyState.astro'; import { getCollection } from 'astro:content'; import { basePath, isPublicWork, seasonLabels } from '../../utils/content';
-const works=(await getCollection('works')).filter((work)=>isPublicWork(work)&&work.data.mediaType==='anime'&&work.data.releaseYear&&work.data.season);
-const groups=[...new Set(works.map((work)=>`${work.data.releaseYear}/${work.data.season}`))].sort().reverse();
+import Layout from '../../layouts/Layout.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import { basePath, isPublicWork, seasonLabels } from '../../utils/content';
+import { loadWorks } from '../../utils/dev-fixtures';
+
+const works = (await loadWorks()).filter((work) => isPublicWork(work) && work.data.mediaType === 'anime' && work.data.releaseYear && work.data.season);
+const groups = [...new Set(works.map((work) => `${work.data.releaseYear}/${work.data.season}`))]
+  .map((value) => {
+    const [year, season] = value.split('/');
+    return {
+      year,
+      season: season as keyof typeof seasonLabels,
+      count: works.filter((work) => `${work.data.releaseYear}/${work.data.season}` === value).length,
+    };
+  })
+  .sort((a, b) => Number(b.year) - Number(a.year) || ['winter', 'spring', 'summer', 'fall'].indexOf(a.season) - ['winter', 'spring', 'summer', 'fall'].indexOf(b.season));
 ---
-<Layout title="Temporadas de anime"><h1>Temporadas</h1><p class="intro">Seleções organizadas com o ano e a estação declarados na ficha da obra.</p>{groups.length?<ul>{groups.map((group)=>{const [year,season]=group.split('/');return <li><a href={basePath(`/temporadas/${year}/${season}/`)}>{seasonLabels[season as keyof typeof seasonLabels]} {year}</a></li>})}</ul>:<EmptyState title="Sem temporadas cadastradas" message="As temporadas aparecerão quando houver obras de anime com ano e estação informados." />}</Layout>
-<style>.intro {color:var(--muted)} ul {padding-left:1.2rem} li {margin:.8rem 0}</style>
+
+<Layout title="Temporadas de anime" description="Obras de anime organizadas pelas temporadas cadastradas no catálogo.">
+  <div class="season-page">
+    <header class="page-heading">
+      <div class="heading-top">
+        <a class="back-link" href={basePath('/')}>← Início</a>
+        <a class="catalog-link" href={basePath('/obras/')}>Ver catálogo completo →</a>
+      </div>
+      <h1>Temporadas de anime</h1>
+      <p>Navegue pelas obras de anime organizadas por ano e estação de estreia.</p>
+    </header>
+    {groups.length > 0 ? (
+      <ul class="season-grid">
+        {groups.map(({ year, season, count }) => (
+          <li>
+            <a href={basePath(`/temporadas/${year}/${season}/`)}>
+              <span class="season-copy">
+                <strong>{seasonLabels[season]} {year}</strong>
+                <small>{count} {count === 1 ? 'obra cadastrada' : 'obras cadastradas'}</small>
+              </span>
+              <span class="arrow" aria-hidden="true">→</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <EmptyState
+        title="Nenhuma temporada cadastrada"
+        message="As temporadas aparecerão aqui quando houver obras de anime com ano e estação verificados no catálogo."
+        actionHref={basePath('/obras/')}
+        actionLabel="Abrir catálogo"
+      />
+    )}
+  </div>
+</Layout>
+
+<style>
+  .season-page { display: grid; gap: 1.5rem; }
+  .page-heading {
+    display: grid;
+    gap: .4rem;
+    padding: 0 0 1.25rem;
+    border-bottom: 1px solid var(--line-subtle);
+  }
+  .heading-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .2rem;
+  }
+  .back-link,
+  .catalog-link {
+    font-size: .82rem;
+    font-weight: 650;
+    text-decoration: none;
+  }
+  .back-link { color: var(--muted); }
+  .back-link:hover { color: var(--accent); }
+  h1 {
+    margin: 0;
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+    letter-spacing: -.03em;
+  }
+  .page-heading > p:last-child {
+    max-width: 58ch;
+    margin: 0;
+    color: var(--muted);
+    font-size: .96rem;
+  }
+  .season-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .season-grid a {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--line-subtle);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    color: var(--ink);
+    text-decoration: none;
+    transition: border-color .16s ease, box-shadow .16s ease;
+  }
+  .season-grid a:hover {
+    border-color: var(--line);
+    box-shadow: var(--shadow-sm);
+  }
+  .season-grid a:hover strong { color: var(--accent); }
+  .season-copy { display: grid; gap: .2rem; }
+  .season-copy small { color: var(--muted); font-size: .8rem; }
+  .season-copy strong { font-size: 1.05rem; }
+  .arrow { margin-left: auto; color: var(--accent); font-size: 1.1rem; }
+  @media (max-width: 820px) { .season-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .season-grid { grid-template-columns: 1fr; } }
+</style>

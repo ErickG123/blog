@@ -1,5 +1,11 @@
 ---
-import Layout from '../../layouts/Layout.astro'; import PostListing from '../../components/PostListing.astro'; import { getCollection } from 'astro:content'; import { postsOfType } from '../../utils/content';
-const posts = postsOfType(await getCollection('posts'), 'guide');
+import Layout from '../../layouts/Layout.astro';
+import PostListing from '../../components/PostListing.astro';
+import { postsOfType } from '../../utils/content';
+import { loadPosts } from '../../utils/dev-fixtures';
+
+const posts = postsOfType(await loadPosts(), 'guide');
 ---
-<Layout title="Guias de anime e mangá"><PostListing title="Guias" description="Guias para explorar histórias, universos e leituras." posts={posts} /></Layout>
+<Layout title="Guias de anime e mangá">
+  <PostListing title="Guias" description="Guias práticos para explorar histórias, universos, formatos e temporadas." posts={posts} />
+</Layout>

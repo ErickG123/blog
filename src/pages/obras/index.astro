@@ -1,11 +1,12 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import EmptyState from '../../components/EmptyState.astro';
-import { getCollection } from 'astro:content';
+import WorkCard from '../../components/WorkCard.astro';
 import { basePath, isPublicWork, seasonLabels } from '../../utils/content';
+import { loadTaxonomies, loadWorks } from '../../utils/dev-fixtures';
 import { taxonomyId } from '../../utils/work-filters';
 
-const [allWorks, taxonomies] = await Promise.all([getCollection('works'), getCollection('taxonomies')]);
+const [allWorks, taxonomies] = await Promise.all([loadWorks(), loadTaxonomies()]);
 const works = allWorks.filter(isPublicWork).sort((a, b) => a.id.localeCompare(b.id));
 const genreTaxonomies = taxonomies.filter((taxonomy) => taxonomy.data.type === 'genre');
 const genreLabelsById = new Map(genreTaxonomies.map((taxonomy) => [taxonomy.id, taxonomy.data.name]));
@@ -25,58 +26,91 @@ const workRecords = works.map((work) => {
   };
 });
 const genreOptions = new Map(genreTaxonomies.map((taxonomy) => [taxonomy.id, taxonomy.data.name]));
-for (const work of workRecords) for (const genre of work.genres) genreOptions.set(taxonomyId(genre), genreOptions.get(taxonomyId(genre)) ?? genre);
-const years = [...new Set(workRecords.flatMap((work) => work.releaseYear ? [work.releaseYear] : []))].sort((a, b) => b - a);
+for (const work of workRecords) {
+  for (const genre of work.genres) {
+    genreOptions.set(taxonomyId(genre), genreOptions.get(taxonomyId(genre)) ?? genre);
+  }
+}
+const years = [...new Set(workRecords.flatMap((work) => (work.releaseYear ? [work.releaseYear] : [])))].sort((a, b) => b - a);
 ---
 
 <Layout title="Catálogo de obras" description="Explore o catálogo editorial de obras de anime e mangá.">
-  <header class="heading">
-    <p class="eyebrow">CATÁLOGO</p>
-    <h1>Obras</h1>
-    <p>Explore anime e mangá por formato, gênero, ano, temporada ou busca.</p>
-  </header>
-
-  {works.length === 0 ? (
-    <EmptyState title="Catálogo em construção" message="As obras serão listadas quando houver informações editoriais verificadas." />
-  ) : (
-    <>
-      <form id="work-filters" class="filters" role="search">
-        <label for="work-query">Buscar no catálogo
-          <input id="work-query" name="query" type="search" autocomplete="off" placeholder="Título, descrição ou gênero" />
-        </label>
-        <label for="work-type">Tipo
-          <select id="work-type" name="mediaType"><option value="">Todos</option><option value="anime">Anime</option><option value="manga">Mangá</option></select>
-        </label>
-        <label for="work-genre">Gênero
-          <select id="work-genre" name="genre"><option value="">Todos</option>{[...genreOptions].sort((a, b) => a[1].localeCompare(b[1], 'pt-BR')).map(([id, label]) => <option value={id}>{label}</option>)}</select>
-        </label>
-        <label for="work-year">Ano
-          <select id="work-year" name="year"><option value="">Todos</option>{years.map((year) => <option value={year}>{year}</option>)}</select>
-        </label>
-        <label for="work-season">Temporada
-          <select id="work-season" name="season"><option value="">Todas</option>{Object.entries(seasonLabels).map(([season, label]) => <option value={season}>{label}</option>)}</select>
-        </label>
-        <button type="reset" class="reset">Limpar filtros</button>
-      </form>
-
-      <p id="filter-count" class="filter-count" role="status" aria-live="polite"></p>
-      <div id="work-catalog" class="grid" data-works={JSON.stringify(workRecords)}>
-        {works.map((work) => {
-          const record = workRecords.find((candidate) => candidate.id === work.id)!;
-          return <article class="work" data-work-id={work.id}>
-            <a class="work-link" href={basePath(`/obras/${work.id}/`)}>
-              {work.data.cover && <img src={basePath(work.data.cover)} alt={work.data.coverAlt || `Capa de ${work.data.title}`} loading="lazy" />}
-              {work.data.coverCredit && <small class="cover-credit">Imagem: {work.data.coverCredit}</small>}
-              <span class="work-type">{work.data.mediaType === 'anime' ? 'Anime' : 'Mangá'}{work.data.releaseYear ? ` · ${work.data.releaseYear}` : ''}{work.data.season ? ` · ${seasonLabels[work.data.season]}` : ''}</span>
-              <h2>{work.data.title}</h2>
-            </a>
-            <p class="genres">{record.genres.join(' · ')}</p>
-          </article>;
-        })}
+  <section class="catalog-page" aria-labelledby="catalog-title">
+    <header class="catalog-heading">
+      <div class="heading-top">
+        <a class="back-link" href={basePath('/')}>← Início</a>
+        <a class="season-shortcut" href={basePath('/temporadas/')}>Ver temporadas →</a>
       </div>
-      <EmptyState title="Nenhuma obra encontrada" message="Tente outros termos ou limpe os filtros para ver o catálogo completo." />
-    </>
-  )}
+      <h1 id="catalog-title">Catálogo de obras</h1>
+      <p>Busque por título ou filtre fichas de anime e mangá por tipo, gênero, ano e temporada.</p>
+    </header>
+
+    {works.length === 0 ? (
+      <EmptyState
+        title="O catálogo está vazio"
+        message="As fichas editoriais de anime e mangá aparecerão aqui conforme forem verificadas e publicadas."
+        actionHref={basePath('/')}
+        actionLabel="Voltar para a Home"
+      />
+    ) : (
+      <>
+        <form id="work-filters" class="filters" role="search" aria-label="Filtrar catálogo">
+          <label class="query-field" for="work-query">
+            <span>Buscar uma obra</span>
+            <input id="work-query" name="query" type="search" autocomplete="off" placeholder="Título, sinopse ou gênero" />
+          </label>
+          <label for="work-type">
+            <span>Tipo de obra</span>
+            <select id="work-type" name="mediaType">
+              <option value="">Todos</option>
+              <option value="anime">Anime</option>
+              <option value="manga">Mangá</option>
+            </select>
+          </label>
+          <label for="work-genre">
+            <span>Gênero</span>
+            <select id="work-genre" name="genre">
+              <option value="">Todos</option>
+              {[...genreOptions].sort((a, b) => a[1].localeCompare(b[1], 'pt-BR')).map(([id, label]) => (
+                <option value={id}>{label}</option>
+              ))}
+            </select>
+          </label>
+          <label for="work-year">
+            <span>Ano</span>
+            <select id="work-year" name="year">
+              <option value="">Todos</option>
+              {years.map((year) => <option value={year}>{year}</option>)}
+            </select>
+          </label>
+          <label for="work-season">
+            <span>Temporada</span>
+            <select id="work-season" name="season">
+              <option value="">Todas</option>
+              {Object.entries(seasonLabels).map(([season, label]) => (
+                <option value={season}>{label}</option>
+              ))}
+            </select>
+          </label>
+          <button type="reset" class="reset">Limpar filtros</button>
+        </form>
+
+        <div class="results-heading">
+          <p id="filter-count" role="status" aria-live="polite"></p>
+        </div>
+
+        <div id="work-catalog" class="work-grid" data-works={JSON.stringify(workRecords)}>
+          {works.map((work) => <WorkCard work={work} />)}
+        </div>
+
+        <EmptyState
+          title="Nenhuma obra encontrada"
+          message="Tente outros termos ou limpe os filtros para ver o catálogo completo."
+          hidden={true}
+        />
+      </>
+    )}
+  </section>
 
   <script>
     import '../../scripts/work-catalog';
@@ -84,24 +118,114 @@ const years = [...new Set(workRecords.flatMap((work) => work.releaseYear ? [work
 </Layout>
 
 <style>
-  .heading { margin:1rem 0 2rem; }
-  .eyebrow { color:var(--accent);font-size:.75rem;font-weight:700;letter-spacing:.14em; }
-  h1 { margin:0;font-size:clamp(2rem,5vw,3rem); }
-  .heading p:last-child,.genres { color:var(--muted); }
-  .filters { display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));align-items:end;gap:1rem;margin:1.5rem 0; }
-  .filters label { display:grid;gap:.4rem;font-size:.9rem;font-weight:600; }
-  .filters input,.filters select { box-sizing:border-box;width:100%;min-height:2.75rem;padding:.6rem .7rem;border:1px solid var(--border);border-radius:8px;background:var(--card-bg);color:var(--text);font:inherit; }
-  .filters input:focus-visible,.filters select:focus-visible,.reset:focus-visible { outline:3px solid var(--accent);outline-offset:2px; }
-  .reset { min-height:2.75rem;padding:.55rem .85rem;border:1px solid var(--border);border-radius:8px;background:var(--card-bg);color:var(--text);font:inherit;font-weight:600;cursor:pointer; }
-  .reset:hover { border-color:var(--accent); }
-  .filter-count { min-height:1.5rem;color:var(--muted);font-size:.9rem; }
-  .grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:1rem; }
-  .work { min-width:0;padding:1rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--card-bg); }
-  .grid[hidden],.work[hidden],.empty[hidden] { display:none!important; }
-  .work img { width:100%;height:12rem;object-fit:cover;border-radius:6px; }
-  .cover-credit { display:block;color:var(--muted);font-size:.75rem; }
-  .work-type { color:var(--muted);font-size:.85rem; }
-  .work h2 { margin:.3rem 0;font-size:1.15rem; }
-  .work-link { color:var(--text); }
-  .genres { margin:.5rem 0 0;font-size:.9rem; }
+  .catalog-page {
+    display: grid;
+    gap: 1.35rem;
+  }
+  .catalog-heading {
+    display: grid;
+    gap: .4rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--line-subtle);
+  }
+  .heading-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .2rem;
+  }
+  .back-link,
+  .season-shortcut {
+    font-size: .82rem;
+    font-weight: 650;
+    text-decoration: none;
+  }
+  .back-link { color: var(--muted); }
+  .back-link:hover { color: var(--accent); }
+  h1 {
+    margin: 0;
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+    letter-spacing: -.03em;
+  }
+  .catalog-heading > p:last-child {
+    max-width: 60ch;
+    margin: 0;
+    color: var(--muted);
+    font-size: .96rem;
+  }
+  .filters {
+    display: grid;
+    grid-template-columns: 1.8fr repeat(4, minmax(0, 1fr)) auto;
+    gap: .75rem;
+    align-items: end;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--line-subtle);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+  .filters label {
+    display: grid;
+    gap: .35rem;
+    min-width: 0;
+    color: var(--muted);
+    font-size: .78rem;
+    font-weight: 650;
+  }
+  .filters input,
+  .filters select {
+    width: 100%;
+    min-width: 0;
+    min-height: 2.55rem;
+    padding: .45rem .65rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: .86rem;
+  }
+  .reset {
+    min-height: 2.55rem;
+    padding: .45rem .85rem;
+    border: 1px solid var(--line-subtle);
+    border-radius: var(--radius-sm);
+    background: var(--surface-soft);
+    color: var(--ink);
+    font-size: .82rem;
+    font-weight: 700;
+  }
+  .reset:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .results-heading {
+    margin: -.25rem 0;
+    color: var(--muted);
+    font-size: .84rem;
+    font-weight: 600;
+  }
+  #filter-count { margin: 0; }
+  .work-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+  .work-grid[hidden],
+  .work-card[hidden],
+  .empty-state[hidden] {
+    display: none !important;
+  }
+  @media (max-width: 980px) {
+    .filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .query-field { grid-column: 1 / -1; }
+    .work-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (max-width: 700px) {
+    .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .reset { grid-column: 1 / -1; }
+    .work-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
+  }
+  @media (max-width: 380px) {
+    .work-grid { grid-template-columns: 1fr; }
+  }
 </style>

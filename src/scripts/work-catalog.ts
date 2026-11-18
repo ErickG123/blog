@@ -3,7 +3,7 @@ import { filterWorks, type FilterableWork } from '../utils/work-filters';
 const form = document.querySelector<HTMLFormElement>('#work-filters');
 const catalog = document.querySelector<HTMLElement>('#work-catalog');
 const count = document.querySelector<HTMLElement>('#filter-count');
-const emptyState = document.querySelector<HTMLElement>('.empty');
+const emptyState = document.querySelector<HTMLElement>('.empty-state');
 
 if (form && catalog && count && emptyState) {
   const works = JSON.parse(catalog.dataset.works ?? '[]') as FilterableWork[];

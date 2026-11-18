@@ -1,0 +1,17 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PostListing from '../../components/PostListing.astro';
+import { publicPosts } from '../../utils/content';
+import { loadPosts } from '../../utils/dev-fixtures';
+
+const allPosts = publicPosts(await loadPosts());
+const archivePosts = allPosts.filter((post) => post.id === 'ola-mundo' || post.data.type === 'article');
+---
+
+<Layout title="Arquivo geral — Anime & Mangá" description="Publicações técnicas e arquivo geral preservados no blog.">
+  <PostListing
+    title="Arquivo geral"
+    description="Publicações anteriores e textos técnicos preservados fora do feed temático de anime e mangá."
+    posts={archivePosts}
+  />
+</Layout>
