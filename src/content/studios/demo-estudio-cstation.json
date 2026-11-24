@@ -1,0 +1,8 @@
+{
+  "id": "demo-studio-cstation",
+  "slug": "estudio-c-station-demo",
+  "name": "C-Station (Demo)",
+  "country": "JP",
+  "description": "Estúdio de animação demonstrativo vinculado às fichas de anime do catálogo.",
+  "isFixture": true
+}

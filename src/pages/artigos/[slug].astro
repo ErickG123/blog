@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import BaseLayout from '@shared/layouts/BaseLayout.astro';
 import TagChip from '@shared/ui/TagChip.astro';
+import CopyLinkButton from '@shared/ui/CopyLinkButton.astro';
 import { formatDatePtBr, ROUTES } from '@shared/domain/rules';
 import { estimateReadingMinutes } from '@shared/utils/editorial';
 import { getPublicArticles, getPublicWorks } from '@features/content/content.selectors';
@@ -15,10 +16,11 @@ export async function getStaticPaths() {
 }
 
 const { article } = Astro.props;
-const { Content } = await render(article.entry);
+const { Content, headings } = await render(article.entry);
 const works = await getPublicWorks();
 const relatedWorks = works.filter((w) => article.relatedWorkIds?.includes(w.id));
 const readingMin = estimateReadingMinutes(article.entry.body ?? '');
+const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 ---
 
 <BaseLayout title={article.title} description={article.summary} ogType="article">
@@ -30,18 +32,34 @@ const readingMin = estimateReadingMinutes(article.entry.body ?? '');
       </div>
       <h1>{article.title}</h1>
       <p>{article.summary}</p>
-      <p style="font-size: var(--ma-text-sm); margin-top: 0.75rem;">
-        Publicado em{' '}
-        <time datetime={article.publishedAt}>{formatDatePtBr(article.publishedAt)}</time>
-      </p>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; font-size: var(--ma-text-sm); margin-top: 0.75rem;">
+        <span>
+          Publicado em{' '}
+          <time datetime={article.publishedAt}>{formatDatePtBr(article.publishedAt)}</time>
+        </span>
+        <CopyLinkButton />
+      </div>
     </header>
+
+    {tocHeadings.length >= 3 && (
+      <nav class="ma-toc" aria-label="Índice do artigo">
+        <strong>Neste artigo</strong>
+        <ul>
+          {tocHeadings.map((h) => (
+            <li>
+              <a href={`#${h.slug}`}>{h.text}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
 
     <div class="ma-prose">
       <Content />
     </div>
 
     {relatedWorks.length > 0 && (
-      <section style="margin-top: 2rem;">
+      <section style="margin-top: 2.5rem;">
         <h2>Obras citadas</h2>
         <ul>
           {relatedWorks.map((w) => (

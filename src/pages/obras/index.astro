@@ -21,21 +21,85 @@ const works = await getPublicWorks();
   </section>
 
   {works.length > 0 ? (
-    <div class="ma-grid">
-      {works.map((work) => (
-        <article class="ma-work-card">
-          <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-            <TagChip label={work.kind} variant="accent" />
-            <TagChip label={work.format} />
-            {work.releaseYear && <TagChip label={String(work.releaseYear)} />}
-          </div>
-          <h2>
-            <a href={ROUTES.work(work.slug)}>{work.title}</a>
-          </h2>
-          <p>{work.synopsis}</p>
-        </article>
-      ))}
-    </div>
+    <>
+      <div class="ma-filter-bar" role="group" aria-label="Filtrar obras por tipo">
+        <button type="button" class="ma-btn" data-work-filter="all" aria-pressed="true">
+          Todas ({works.length})
+        </button>
+        <button type="button" class="ma-btn" data-work-filter="manga" aria-pressed="false">
+          Mangá ({works.filter((w) => w.kind === 'manga').length})
+        </button>
+        <button type="button" class="ma-btn" data-work-filter="anime" aria-pressed="false">
+          Anime ({works.filter((w) => w.kind === 'anime').length})
+        </button>
+        <button type="button" class="ma-btn" data-work-filter="manhwa" aria-pressed="false">
+          Manhwa ({works.filter((w) => w.kind === 'manhwa').length})
+        </button>
+      </div>
+
+      <div class="ma-grid" data-works-grid>
+        {works.map((work) => (
+          <article class="ma-work-card" data-work-kind={work.kind}>
+            {work.cover && (
+              <div class="ma-work-card__cover">
+                <img
+                  src={work.cover.src}
+                  alt={work.cover.alt}
+                  width={work.cover.width}
+                  height={work.cover.height}
+                  loading="lazy"
+                />
+              </div>
+            )}
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+              <TagChip label={work.kind} variant="accent" />
+              <TagChip label={work.format} />
+              {work.releaseYear && <TagChip label={String(work.releaseYear)} />}
+            </div>
+            <h2>
+              <a href={ROUTES.work(work.slug)}>{work.title}</a>
+            </h2>
+            {work.originalTitle && (
+              <p style="font-size: var(--ma-text-xs); font-style: italic;">{work.originalTitle}</p>
+            )}
+            <p>{work.synopsis}</p>
+          </article>
+        ))}
+      </div>
+
+      <script is:inline>
+        (() => {
+          const buttons = document.querySelectorAll('[data-work-filter]');
+          const cards = document.querySelectorAll('[data-work-kind]');
+          const apply = (kind, syncUrl = true) => {
+            const valid = ['all', 'manga', 'anime', 'manhwa'].includes(kind) ? kind : 'all';
+            buttons.forEach((btn) => {
+              btn.setAttribute(
+                'aria-pressed',
+                String(btn.getAttribute('data-work-filter') === valid),
+              );
+            });
+            cards.forEach((card) => {
+              const match = valid === 'all' || card.getAttribute('data-work-kind') === valid;
+              card.toggleAttribute('hidden', !match);
+            });
+            if (syncUrl) {
+              const url = new URL(window.location.href);
+              if (valid === 'all') url.searchParams.delete('tipo');
+              else url.searchParams.set('tipo', valid);
+              window.history.replaceState({}, '', url);
+            }
+          };
+          const initial = new URLSearchParams(window.location.search).get('tipo') || 'all';
+          apply(initial, false);
+          buttons.forEach((btn) => {
+            btn.addEventListener('click', () => {
+              apply(btn.getAttribute('data-work-filter') || 'all', true);
+            });
+          });
+        })();
+      </script>
+    </>
   ) : (
     <EmptyState
       title="Nenhuma obra pública cadastrada"

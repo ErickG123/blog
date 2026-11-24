@@ -3,6 +3,7 @@ import { render } from 'astro:content';
 import BaseLayout from '@shared/layouts/BaseLayout.astro';
 import TagChip from '@shared/ui/TagChip.astro';
 import MediaFigure from '@shared/ui/MediaFigure.astro';
+import CopyLinkButton from '@shared/ui/CopyLinkButton.astro';
 import { formatDatePtBr, ROUTES } from '@shared/domain/rules';
 import { formatSpoilerLabel } from '@shared/utils/editorial';
 import { getPublicReviews, getPublicWorks } from '@features/content/content.selectors';
@@ -16,9 +17,17 @@ export async function getStaticPaths() {
 }
 
 const { review } = Astro.props;
-const { Content } = await render(review.entry);
-const works = await getPublicWorks();
+const { Content, headings } = await render(review.entry);
+const [works, allReviews] = await Promise.all([getPublicWorks(), getPublicReviews()]);
 const work = works.find((w) => w.id === review.workId);
+const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+const relatedReviews = allReviews
+  .filter(
+    (r) =>
+      r.id !== review.id &&
+      (r.workId === review.workId || r.tagIds.some((t) => review.tagIds.includes(t))),
+  )
+  .slice(0, 3);
 ---
 
 <BaseLayout title={review.title} description={review.summary} ogType="article">
@@ -33,15 +42,18 @@ const work = works.find((w) => w.id === review.workId);
       </div>
       <h1>{review.title}</h1>
       <p>{review.summary}</p>
-      <p style="font-size: var(--ma-text-sm); margin-top: 0.75rem;">
-        Publicado em <time datetime={review.publishedAt}>{formatDatePtBr(review.publishedAt)}</time>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; font-size: var(--ma-text-sm); margin-top: 0.75rem;">
+        <span>
+          Publicado em{' '}
+          <time datetime={review.publishedAt}>{formatDatePtBr(review.publishedAt)}</time>
+        </span>
         {work && (
-          <>
-            {' '}
+          <span>
             · Obra: <a href={ROUTES.work(work.slug)}>{work.title}</a>
-          </>
+          </span>
         )}
-      </p>
+        <CopyLinkButton />
+      </div>
     </header>
 
     {review.cover && <MediaFigure asset={review.cover} eager />}
@@ -53,8 +65,37 @@ const work = works.find((w) => w.id === review.workId);
       </aside>
     )}
 
+    {tocHeadings.length >= 3 && (
+      <nav class="ma-toc" aria-label="Índice do texto">
+        <strong>Neste texto</strong>
+        <ul>
+          {tocHeadings.map((h) => (
+            <li>
+              <a href={`#${h.slug}`}>{h.text}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
+
     <div class="ma-prose">
       <Content />
     </div>
+
+    {relatedReviews.length > 0 && (
+      <section style="margin-top: 3rem;">
+        <h2>Outras reviews relacionadas</h2>
+        <ul class="ma-entry-list">
+          {relatedReviews.map((rel) => (
+            <li class="ma-entry">
+              <h3 class="ma-entry__title">
+                <a href={ROUTES.review(rel.slug)}>{rel.title}</a>
+              </h3>
+              <p class="ma-entry__summary">{rel.summary}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
   </article>
 </BaseLayout>

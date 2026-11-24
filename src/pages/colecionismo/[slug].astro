@@ -1,10 +1,12 @@
 ---
 import { render } from 'astro:content';
 import BaseLayout from '@shared/layouts/BaseLayout.astro';
+import MediaFigure from '@shared/ui/MediaFigure.astro';
 import { formatDatePtBr, ROUTES } from '@shared/domain/rules';
 import {
   getPublicCollectingPosts,
   getPublicEditions,
+  getPublicPublishers,
   getPublicWorks,
 } from '@features/content/content.selectors';
 
@@ -18,7 +20,12 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await render(post.entry);
-const [editions, works] = await Promise.all([getPublicEditions(), getPublicWorks()]);
+const [editions, works, publishers] = await Promise.all([
+  getPublicEditions(),
+  getPublicWorks(),
+  getPublicPublishers(),
+]);
+const publisherMap = new Map(publishers.map((p) => [p.id, p]));
 const postEditions = editions.filter((e) => post.editionIds.includes(e.id));
 const postWorks = works.filter((w) => post.workIds.includes(w.id));
 ---
@@ -33,19 +40,44 @@ const postWorks = works.filter((w) => post.workIds.includes(w.id));
       </p>
     </header>
 
+    {post.cover && <MediaFigure asset={post.cover} eager />}
+
     {postEditions.length > 0 && (
-      <section class="ma-meta-box" aria-label="Edições analisadas">
-        <dl>
-          {postEditions.map((ed) => (
-            <div>
-              <dt>{ed.title}</dt>
-              <dd>
-                {[ed.formatLabel, ed.paperType, ed.binding].filter(Boolean).join(' · ') ||
-                  ed.language}
-              </dd>
-            </div>
-          ))}
-        </dl>
+      <section aria-label="Comparativo de edições físicas">
+        <h2>Ficha comparativa de edições</h2>
+        <div class="ma-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Edição</th>
+                <th scope="col">Editora</th>
+                <th scope="col">Formato</th>
+                <th scope="col">Papel</th>
+                <th scope="col">Acabamento</th>
+                <th scope="col">Ano</th>
+              </tr>
+            </thead>
+            <tbody>
+              {postEditions.map((ed) => {
+                const pub = publisherMap.get(ed.publisherId);
+                return (
+                  <tr>
+                    <td>
+                      <strong>{ed.title}</strong>
+                    </td>
+                    <td>
+                      {pub ? <a href={ROUTES.publisher(pub.slug)}>{pub.name}</a> : ed.publisherId}
+                    </td>
+                    <td>{ed.formatLabel ?? 'Não informado'}</td>
+                    <td>{ed.paperType ?? 'Não informado'}</td>
+                    <td>{ed.binding ?? 'Não informado'}</td>
+                    <td>{ed.releaseYear ?? '—'}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </section>
     )}
 

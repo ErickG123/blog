@@ -1,8 +1,0 @@
-{
-  "id": "fixture-publisher-01",
-  "slug": "editora-sintetica-atlas",
-  "name": "Editora Sintética (Fixture)",
-  "country": "BR",
-  "description": "Editora fictícia usada apenas para validação de schemas e demonstração.",
-  "isFixture": true
-}

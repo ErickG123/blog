@@ -1,8 +1,0 @@
-{
-  "id": "fixture-studio-01",
-  "slug": "estudio-sintetico-atlas",
-  "name": "Estúdio Sintético (Fixture)",
-  "country": "JP",
-  "description": "Estúdio fictício usado exclusivamente para validação e demonstração.",
-  "isFixture": true
-}

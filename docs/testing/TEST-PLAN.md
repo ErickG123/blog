@@ -55,3 +55,15 @@ Este é o checklist central de verificação do projeto. Mantenha os IDs estáve
 | `T19-01` | Suíte completa de testes unitários e E2E                              | `npm run test` + `npm run test:e2e` | `[x]`  | Vitest 13/13 + Playwright 6/6 aprovados                                 |
 | `T20-01` | Auditoria visual e responsividade 320px em todas as rotas principais  | `tests/e2e/routes-and-a11y.spec.ts` | `[x]`  | 11 rotas validadas + screenshots em `docs/reports/evidence/phase-20/`   |
 | `T23-01` | Build real (fixtures isoladas) e build demo (`INCLUDE_FIXTURES=true`) | `npm run build`                     | `[x]`  | Ambos concluídos sem erros                                              |
+
+## Fases 24–38 — Evolução Mangá Atlas v1.1.0
+
+| ID       | Verificação                                                                                          | Comando / Método                             | Status | Evidência / Observação                            |
+| -------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------- | ------ | ------------------------------------------------- |
+| `T24-01` | Auditoria baseline e matriz `MA-AUD`                                                                 | Revisão `AUDIT-PHASE-24-BASELINE.md`         | `[x]`  | 8 riscos mapeados e encaminhados para fases 25–38 |
+| `T25-01` | Metas de fixtures (40 obras, 20 reviews, 15 artigos, 10 guias, 10 colecionismo) e build demo isolado | `npm run build:demo`                         | `[x]`  | `dist-demo/` gerado com `noindex` e Pagefind      |
+| `T25-02` | Isolamento após builds alternados (`build:demo` -> `build`)                                          | `npm run build` (`check-isolation.mjs`)      | `[x]`  | Zero marcadores ou `demo-assets` em `dist/`       |
+| `T33-01` | Campo de busca sempre presente e busca Pagefind funcional                                            | `tests/e2e/search-and-responsive.spec.ts`    | `[x]`  | `#ma-search-input` visível e status acessível     |
+| `T34-01` | Responsividade 320/390/768/1024/1440px sem overflow                                                  | `tests/e2e/search-and-responsive.spec.ts`    | `[x]`  | Validado em Chromium + screenshots `phase-34/`    |
+| `T35-01` | CLI editorial (`--dry-run`, path traversal, sem sobrescrita)                                         | `tests/unit/cli-editorial.test.ts`           | `[x]`  | Testado em diretório temporário isolado           |
+| `T36-01` | Cobertura Vitest + suíte E2E completa                                                                | `npm run test:coverage` + `npm run test:e2e` | `[x]`  | Todos os testes unitários e E2E aprovados         |

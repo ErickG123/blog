@@ -8,6 +8,7 @@ export default [
   {
     ignores: [
       'dist/**',
+      'dist-demo/**',
       '.astro/**',
       'node_modules/**',
       'playwright-report/**',

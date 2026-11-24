@@ -1,0 +1,31 @@
+{
+  "id": "demo-work-yuru-camp",
+  "slug": "yuru-camp-demo",
+  "title": "Yuru Camp△",
+  "originalTitle": "ゆるキャン△",
+  "alternativeTitles": ["Laid-Back Camp"],
+  "kind": "anime",
+  "format": "series",
+  "country": "JP",
+  "originalLanguage": "ja",
+  "releaseYear": 2018,
+  "publicationStatus": "completed",
+  "synopsis": "Rin gosta de acampar sozinha perto do Monte Fuji durante o inverno, até conhecer Nadeshiko e o clube de atividades ao ar livre da escola, descobrindo o prazer de compartilhar refeições quentes e paisagens silenciosas.",
+  "cover": {
+    "src": "/demo-assets/cover-02.svg",
+    "alt": "Capa ilustrativa demonstrativa de Yuru Camp△",
+    "width": 420,
+    "height": 600,
+    "credit": "Ilustração SVG original Mangá Atlas (Demo)",
+    "license": "CC0-1.0"
+  },
+  "credits": [
+    {
+      "creatorId": "demo-creator-afro",
+      "role": "author"
+    }
+  ],
+  "studioIds": ["demo-studio-cstation"],
+  "genreIds": ["genre-slice-of-life"],
+  "isFixture": true
+}

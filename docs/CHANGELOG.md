@@ -4,6 +4,24 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.1.0] - 2026-11-23
+
+### Added
+
+- **Fases 24–25 (Auditoria Baseline e Ambiente Demo Isolado)**:
+  - Auditoria baseline (`docs/audits/AUDIT-PHASE-24-BASELINE.md`) com matriz de riscos `MA-AUD-001` a `MA-AUD-008`.
+  - Scripts portáveis `dev:demo`, `build:demo` e `preview:demo` usando `dist-demo/` separado, banner visual e `<meta name="robots" content="noindex, nofollow" />`.
+  - Conjunto completo de fixtures sintéticas (40 obras: 20 mangás, 15 animes, 5 manhwas; 20 reviews, 15 artigos, 10 guias, 10 posts de colecionismo, 20 edições, 25 criadores, 10 editoras, 10 estúdios, 12 gêneros, 30 tags + SVGs locais originais).
+  - Verificador automático de isolamento `scripts/check-isolation.mjs` integrado ao `npm run build`.
+- **Fases 26–34 (Identidade, Home, Leitura, Biblioteca, Colecionismo, Busca e Responsividade)**:
+  - Header com busca acessível (`@lucide/astro`), Home redesenhada (destaque editorial com capa no demo; introdução limpa sem caixas tracejadas no real vazio).
+  - TOC automático em reviews e artigos longos, botão acessível `CopyLinkButton`, relacionados reais e `data-pagefind-ignore` em `SpoilerBlock`.
+  - Biblioteca `/obras/` com capas e filtro por tipo sincronizado na URL (`?tipo=`); Colecionismo com tabela comparativa responsiva.
+  - Página `/busca/` com campo `<input type="search">` sempre visível, integração direta com `/pagefind/pagefind.js` e aviso claro quando o índice não está disponível em `dev`.
+- **Fases 35–38 (CLI Editorial, Cobertura, SEO/JSON-LD e Release 1.1.0)**:
+  - `scripts/new-content.mjs` com `--dry-run`, `--out-dir` e bloqueio de path traversal + `docs/editorial/EDITORIAL-GUIDE.md`.
+  - Cobertura de testes via `@vitest/coverage-v8` (`npm run test:coverage`), JSON-LD estruturado em `BaseLayout.astro` e auditoria final `AUDIT-PHASE-38-RELEASE.md`.
+
 ## [1.0.0] - 2026-11-23
 
 ### Added

@@ -2,7 +2,7 @@
 import BaseLayout from '@shared/layouts/BaseLayout.astro';
 import SectionHeading from '@shared/ui/SectionHeading.astro';
 import TagChip from '@shared/ui/TagChip.astro';
-import EmptyState from '@shared/ui/EmptyState.astro';
+import Button from '@shared/ui/Button.astro';
 import { PROJECT_IDENTITY } from '@shared/utils/project';
 import { formatDatePtBr, ROUTES } from '@shared/domain/rules';
 import { formatSpoilerLabel } from '@shared/utils/editorial';
@@ -22,108 +22,181 @@ const [reviews, articles, guides, collecting, works] = await Promise.all([
   getPublicWorks(),
 ]);
 
-const recentReviews = reviews.slice(0, 4);
+const hasAnyContent =
+  reviews.length > 0 ||
+  articles.length > 0 ||
+  guides.length > 0 ||
+  collecting.length > 0 ||
+  works.length > 0;
+
+const featuredReview = reviews[0];
+const featuredWork = featuredReview ? works.find((w) => w.id === featuredReview.workId) : undefined;
+const recentReviews = reviews.slice(featuredReview ? 1 : 0, 5);
 const recentArticles = articles.slice(0, 4);
 const featuredWorks = works.slice(0, 6);
 ---
 
 <BaseLayout description={PROJECT_IDENTITY.tagline}>
-  <section class="ma-hero">
-    <h1>{PROJECT_IDENTITY.name}</h1>
-    <p>{PROJECT_IDENTITY.tagline}</p>
-  </section>
-
-  <section style="margin-bottom: 3rem;">
-    <SectionHeading title="Reviews recentes" href={ROUTES.reviews} linkLabel="Todas as reviews" />
-    {recentReviews.length > 0 ? (
-      <ul class="ma-entry-list">
-        {recentReviews.map((review) => (
-          <li class="ma-entry">
+  {!hasAnyContent ? (
+    <section class="ma-prose" style="padding-block: 2rem;">
+      <h1>{PROJECT_IDENTITY.name}</h1>
+      <p>{PROJECT_IDENTITY.tagline}</p>
+      <p style="color: var(--ma-text-muted);">
+        O acervo editorial está pronto para receber as primeiras publicações autorizadas. Enquanto
+        isso, você pode conhecer a proposta editorial ou explorar a navegação.
+      </p>
+      <p style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+        <Button href={ROUTES.about} variant="primary">
+          Sobre o projeto
+        </Button>
+        <Button href={ROUTES.editorialPolicy}>Política editorial</Button>
+        <Button href={ROUTES.search}>Pesquisa</Button>
+      </p>
+    </section>
+  ) : (
+    <>
+      {featuredReview && (
+        <section class="ma-featured" aria-label="Destaque editorial">
+          {featuredWork?.cover && (
+            <div class="ma-featured__cover">
+              <img
+                src={featuredWork.cover.src}
+                alt={featuredWork.cover.alt}
+                width={featuredWork.cover.width}
+                height={featuredWork.cover.height}
+                loading="eager"
+              />
+            </div>
+          )}
+          <div>
             <div class="ma-entry__meta">
-              <time datetime={review.publishedAt}>{formatDatePtBr(review.publishedAt)}</time>
-              <TagChip label={formatSpoilerLabel(review.spoilerLevel)} variant="secondary" />
-              {review.rating !== undefined && (
-                <span class="ma-rating">{review.rating.toFixed(1)} / 5</span>
+              <TagChip label="Destaque" variant="accent" />
+              <time datetime={featuredReview.publishedAt}>
+                {formatDatePtBr(featuredReview.publishedAt)}
+              </time>
+              <TagChip
+                label={formatSpoilerLabel(featuredReview.spoilerLevel)}
+                variant="secondary"
+              />
+              {featuredReview.rating !== undefined && (
+                <span class="ma-rating">{featuredReview.rating.toFixed(1)} / 5</span>
               )}
             </div>
-            <h3 class="ma-entry__title">
-              <a href={ROUTES.review(review.slug)}>{review.title}</a>
-            </h3>
-            <p class="ma-entry__summary">{review.summary}</p>
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <EmptyState
-        title="Nenhuma review publicada ainda"
-        description="As críticas autorais de volumes, arcos, obras e temporadas aparecerão aqui assim que forem publicadas."
-      />
-    )}
-  </section>
+            <h1 style="margin: 0.25rem 0 0.75rem; font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.2;">
+              <a
+                href={ROUTES.review(featuredReview.slug)}
+                style="color: var(--ma-text); text-decoration: none;"
+              >
+                {featuredReview.title}
+              </a>
+            </h1>
+            <p style="margin: 0 0 1rem; color: var(--ma-text-muted); max-width: var(--ma-measure);">
+              {featuredReview.summary}
+            </p>
+            <Button href={ROUTES.review(featuredReview.slug)} variant="primary">
+              Ler review
+            </Button>
+          </div>
+        </section>
+      )}
 
-  <section style="margin-bottom: 3rem;">
-    <SectionHeading
-      title="Artigos e análises"
-      href={ROUTES.articles}
-      linkLabel="Todos os artigos"
-    />
-    {recentArticles.length > 0 ? (
-      <ul class="ma-entry-list">
-        {recentArticles.map((article) => (
-          <li class="ma-entry">
-            <div class="ma-entry__meta">
-              <time datetime={article.publishedAt}>{formatDatePtBr(article.publishedAt)}</time>
-              <TagChip label={article.category} />
-            </div>
-            <h3 class="ma-entry__title">
-              <a href={ROUTES.article(article.slug)}>{article.title}</a>
-            </h3>
-            <p class="ma-entry__summary">{article.summary}</p>
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <EmptyState
-        title="Nenhum artigo publicado ainda"
-        description="Ensaios, análises de narrativa e textos sobre a indústria de mangás e animes aparecerão aqui."
-      />
-    )}
-  </section>
+      {recentReviews.length > 0 && (
+        <section style="margin-bottom: 3rem;">
+          <SectionHeading
+            title="Reviews recentes"
+            href={ROUTES.reviews}
+            linkLabel="Todas as reviews"
+          />
+          <ul class="ma-entry-list">
+            {recentReviews.map((review) => (
+              <li class="ma-entry">
+                <div class="ma-entry__meta">
+                  <time datetime={review.publishedAt}>{formatDatePtBr(review.publishedAt)}</time>
+                  <TagChip label={review.scopeLabel ?? review.scope} />
+                  <TagChip label={formatSpoilerLabel(review.spoilerLevel)} variant="secondary" />
+                  {review.rating !== undefined && (
+                    <span class="ma-rating">{review.rating.toFixed(1)} / 5</span>
+                  )}
+                </div>
+                <h3 class="ma-entry__title">
+                  <a href={ROUTES.review(review.slug)}>{review.title}</a>
+                </h3>
+                <p class="ma-entry__summary">{review.summary}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
-  <section style="margin-bottom: 3rem;">
-    <SectionHeading
-      title="Biblioteca de obras"
-      href={ROUTES.works}
-      linkLabel="Explorar biblioteca"
-    />
-    {featuredWorks.length > 0 ? (
-      <div class="ma-grid">
-        {featuredWorks.map((work) => (
-          <article class="ma-work-card">
-            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-              <TagChip label={work.kind} variant="accent" />
-              <TagChip label={work.format} />
-            </div>
-            <h3>
-              <a href={ROUTES.work(work.slug)}>{work.title}</a>
-            </h3>
-            <p>{work.synopsis}</p>
-          </article>
-        ))}
-      </div>
-    ) : (
-      <EmptyState
-        title="Biblioteca vazia no momento"
-        description="Obras catalogadas com fichas factuais, criadores e edições físicas serão listadas aqui."
-      />
-    )}
-  </section>
+      {recentArticles.length > 0 && (
+        <section style="margin-bottom: 3rem;">
+          <SectionHeading
+            title="Artigos e análises"
+            href={ROUTES.articles}
+            linkLabel="Todos os artigos"
+          />
+          <ul class="ma-entry-list">
+            {recentArticles.map((article) => (
+              <li class="ma-entry">
+                <div class="ma-entry__meta">
+                  <time datetime={article.publishedAt}>{formatDatePtBr(article.publishedAt)}</time>
+                  <TagChip label={article.category} />
+                </div>
+                <h3 class="ma-entry__title">
+                  <a href={ROUTES.article(article.slug)}>{article.title}</a>
+                </h3>
+                <p class="ma-entry__summary">{article.summary}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
-  <section>
-    <SectionHeading title="Guias e colecionismo" href={ROUTES.guides} linkLabel="Ver guias" />
-    <p style="color: var(--ma-text-muted); margin-top: 0;">
-      {guides.length} guia(s) de recomendação e {collecting.length} publicação(ões) de
-      <a href={ROUTES.collecting}>colecionismo</a> disponíveis.
-    </p>
-  </section>
+      {featuredWorks.length > 0 && (
+        <section style="margin-bottom: 3rem;">
+          <SectionHeading
+            title="Biblioteca de obras"
+            href={ROUTES.works}
+            linkLabel="Explorar biblioteca"
+          />
+          <div class="ma-grid">
+            {featuredWorks.map((work) => (
+              <article class="ma-work-card">
+                {work.cover && (
+                  <div class="ma-work-card__cover">
+                    <img
+                      src={work.cover.src}
+                      alt={work.cover.alt}
+                      width={work.cover.width}
+                      height={work.cover.height}
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                  <TagChip label={work.kind} variant="accent" />
+                  <TagChip label={work.format} />
+                </div>
+                <h3>
+                  <a href={ROUTES.work(work.slug)}>{work.title}</a>
+                </h3>
+                <p>{work.synopsis}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {(guides.length > 0 || collecting.length > 0) && (
+        <section>
+          <SectionHeading title="Guias e colecionismo" href={ROUTES.guides} linkLabel="Ver guias" />
+          <p style="color: var(--ma-text-muted); margin-top: 0;">
+            Explore {guides.length} <a href={ROUTES.guides}>guia(s) de leitura</a> e{' '}
+            {collecting.length}{' '}
+            <a href={ROUTES.collecting}>publicação(ões) de colecionismo e edições físicas</a>.
+          </p>
+        </section>
+      )}
+    </>
+  )}
 </BaseLayout>

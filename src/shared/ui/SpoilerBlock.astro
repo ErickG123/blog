@@ -6,7 +6,7 @@ interface Props {
 const { label = 'Aviso de spoiler — clique para revelar' } = Astro.props;
 ---
 
-<details class="ma-spoiler">
+<details class="ma-spoiler" data-pagefind-ignore>
   <summary>{label}</summary>
   <div class="ma-spoiler__body">
     <slot />

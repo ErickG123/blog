@@ -1,0 +1,15 @@
+{
+  "id": "demo-edition-yotsuba-v1",
+  "slug": "yotsuba-vol-1-edicao-demo",
+  "workId": "demo-work-yotsuba",
+  "publisherId": "demo-publisher-horizonte",
+  "title": "Yotsuba&! Vol. 1 — Edição Tankobon (Demo)",
+  "language": "pt-BR",
+  "formatLabel": "13,7 × 20 cm",
+  "paperType": "Offwhite 80g",
+  "binding": "Brochura com orelhas",
+  "releaseYear": 2024,
+  "volumesCount": 1,
+  "notes": "Exemplar demonstrativo para validação de ficha técnica e colecionismo.",
+  "isFixture": true
+}

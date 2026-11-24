@@ -1,0 +1,32 @@
+---
+import { Link2 } from '@lucide/astro';
+---
+
+<button type="button" class="ma-btn" data-copy-link aria-label="Copiar link desta página">
+  <Link2 size={15} aria-hidden="true" />
+  <span>Copiar link</span>
+</button>
+<span class="sr-only" aria-live="polite" data-copy-status></span>
+
+<script is:inline>
+  (() => {
+    document.querySelectorAll('[data-copy-link]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const status = btn.nextElementSibling;
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          if (status) status.textContent = 'Link copiado para a área de transferência.';
+          const span = btn.querySelector('span');
+          if (span) {
+            span.textContent = 'Link copiado';
+            setTimeout(() => {
+              span.textContent = 'Copiar link';
+            }, 2000);
+          }
+        } catch {
+          if (status) status.textContent = 'Não foi possível copiar o link automaticamente.';
+        }
+      });
+    });
+  })();
+</script>

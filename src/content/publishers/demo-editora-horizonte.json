@@ -1,0 +1,8 @@
+{
+  "id": "demo-publisher-horizonte",
+  "slug": "editora-horizonte-demo",
+  "name": "Editora Horizonte (Demo)",
+  "country": "BR",
+  "description": "Editora demonstrativa utilizada para validar fichas de obras, edições físicas e páginas de organização.",
+  "isFixture": true
+}

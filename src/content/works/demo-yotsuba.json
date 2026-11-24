@@ -1,0 +1,31 @@
+{
+  "id": "demo-work-yotsuba",
+  "slug": "yotsuba-demo",
+  "title": "Yotsuba&!",
+  "originalTitle": "よつばと!",
+  "alternativeTitles": ["Yotsuba to!"],
+  "kind": "manga",
+  "format": "series",
+  "country": "JP",
+  "originalLanguage": "ja",
+  "releaseYear": 2003,
+  "publicationStatus": "ongoing",
+  "synopsis": "A rotina de Yotsuba Koiwai, uma garotinha curiosa de cinco anos que se muda com o pai adotivo para um novo bairro e transforma cada descoberta simples do dia a dia em uma grande aventura.",
+  "cover": {
+    "src": "/demo-assets/cover-01.svg",
+    "alt": "Capa ilustrativa demonstrativa de Yotsuba&!",
+    "width": 420,
+    "height": 600,
+    "credit": "Ilustração SVG original Mangá Atlas (Demo)",
+    "license": "CC0-1.0"
+  },
+  "credits": [
+    {
+      "creatorId": "demo-creator-azuma",
+      "role": "author"
+    }
+  ],
+  "publisherIds": ["demo-publisher-horizonte"],
+  "genreIds": ["genre-slice-of-life", "genre-comedia"],
+  "isFixture": true
+}

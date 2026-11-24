@@ -1,0 +1,30 @@
+{
+  "id": "demo-work-navillera",
+  "slug": "navillera-demo",
+  "title": "Navillera: Like a Butterfly",
+  "originalTitle": "나빌레라",
+  "kind": "manhwa",
+  "format": "series",
+  "country": "KR",
+  "originalLanguage": "ko",
+  "releaseYear": 2016,
+  "publicationStatus": "completed",
+  "synopsis": "Aos 70 anos, Shim Deok-chul decide realizar o sonho antigo de aprender balé e cruza o caminho de um jovem bailarino em crise, construindo uma amizade sensível sobre tempo, coragem e cotidiano.",
+  "cover": {
+    "src": "/demo-assets/cover-03.svg",
+    "alt": "Capa ilustrativa demonstrativa de Navillera",
+    "width": 420,
+    "height": 600,
+    "credit": "Ilustração SVG original Mangá Atlas (Demo)",
+    "license": "CC0-1.0"
+  },
+  "credits": [
+    {
+      "creatorId": "demo-creator-azuma",
+      "role": "other"
+    }
+  ],
+  "publisherIds": ["demo-publisher-horizonte"],
+  "genreIds": ["genre-drama", "genre-slice-of-life"],
+  "isFixture": true
+}

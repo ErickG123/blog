@@ -28,3 +28,18 @@ Este documento é a fonte oficial de acompanhamento das 24 fases SDD (00 a 23). 
 | 21   | Auditoria técnica, segurança e desempenho         | CONCLUÍDO | `docs/reports/REPORT-PHASE-23.md` | Saída 100% estática, zero rastreadores, `_headers` de segurança                      |
 | 22   | CI/CD, versionamento e preparação para publicação | CONCLUÍDO | `docs/reports/REPORT-PHASE-23.md` | `.github/workflows/ci.yml`, `_headers`, `_redirects` e `CHANGELOG.md`                |
 | 23   | Estabilização final e preparação da versão 1.0.0  | CONCLUÍDO | `docs/reports/REPORT-PHASE-23.md` | Versão `1.0.0` estabilizada e validada integralmente                                 |
+| 24   | Auditoria funcional, arquitetural e documental    | CONCLUÍDO | `docs/reports/REPORT-PHASE-24.md` | Baseline auditado e matriz `MA-AUD-001..008` criada                                  |
+| 25   | Conteúdo demonstrativo e ambiente demo            | CONCLUÍDO | `docs/reports/REPORT-PHASE-38.md` | 40 obras, 20 reviews, 15 artigos, 10 guias, 10 colecionismo + `dist-demo` isolado    |
+| 26   | Reformulação da identidade visual                 | CONCLUÍDO | `docs/reports/REPORT-PHASE-38.md` | Header com busca Lucide, banner demo `noindex`, estados vazios limpos                |
+| 27   | Redesign da página inicial                        | CONCLUÍDO | `docs/reports/REPORT-PHASE-38.md` | Destaque editorial com capa no demo e introdução única no real vazio                 |
+| 28   | Redesign das listagens de conteúdo                | CONCLUÍDO | `docs/reports/REPORT-PHASE-38.md` | Listagens diferenciadas por área editorial                                           |
+| 29   | Experiência de leitura de reviews e artigos       | CONCLUÍDO | `docs/reports/REPORT-PHASE-38.md` | TOC automático, `CopyLinkButton`, relacionados reais e `data-pagefind-ignore`        |
+| 30   | Evolução da biblioteca de obras                   | CONCLUÍDO | `docs/reports/REPORT-PHASE-38.md` | Grid de capas e filtro por tipo (`?tipo=`) sincronizado na URL                       |
+| 31   | Colecionismo e edições físicas                    | CONCLUÍDO | `docs/reports/REPORT-PHASE-38.md` | Tabela comparativa responsiva e `MediaFigure` com créditos                           |
+| 32   | Guias e recomendações                             | CONCLUÍDO | `docs/reports/REPORT-PHASE-38.md` | Listas ordenadas conectadas à biblioteca                                             |
+| 33   | Pesquisa global, filtros e navegação              | CONCLUÍDO | `docs/reports/REPORT-PHASE-38.md` | Campo `<input type="search">` sempre presente + API Pagefind + fallback dev          |
+| 34   | Experiência mobile e responsividade               | CONCLUÍDO | `docs/reports/REPORT-PHASE-38.md` | Matriz 320–1440px validada sem overflow + evidências `phase-34/`                     |
+| 35   | Aprimoramento das ferramentas editoriais          | CONCLUÍDO | `docs/reports/REPORT-PHASE-38.md` | `new-content.mjs` com `--dry-run`, proteção path traversal e `EDITORIAL-GUIDE.md`    |
+| 36   | Ampliação da cobertura de testes                  | CONCLUÍDO | `docs/reports/REPORT-PHASE-38.md` | `@vitest/coverage-v8`, testes CLI e E2E de busca/responsividade                      |
+| 37   | SEO, acessibilidade e desempenho                  | CONCLUÍDO | `docs/reports/REPORT-PHASE-38.md` | JSON-LD estruturado, canonical, `_headers` e `noindex` no demo                       |
+| 38   | Auditoria final, consolidação e v1.1.0            | CONCLUÍDO | `docs/reports/REPORT-PHASE-38.md` | Versão `1.1.0` pronta tecnicamente; prontidão editorial separada                     |

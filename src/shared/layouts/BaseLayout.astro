@@ -3,15 +3,18 @@ import '@shared/styles/base.scss';
 import '@shared/styles/components.scss';
 import '@shared/styles/layout.scss';
 import '@shared/styles/editorial.scss';
+import { Search } from '@lucide/astro';
 import ThemeToggle from '@shared/ui/ThemeToggle.astro';
 import { PROJECT_IDENTITY } from '@shared/utils/project';
 import { ROUTES } from '@shared/domain/rules';
+import { shouldIncludeFixtures } from '@features/content/content.selectors';
 
 interface Props {
   title?: string;
   description?: string;
   canonicalPath?: string;
   ogType?: 'website' | 'article';
+  jsonLd?: Record<string, unknown>;
 }
 
 const {
@@ -19,8 +22,10 @@ const {
   description = PROJECT_IDENTITY.tagline,
   canonicalPath = Astro.url.pathname,
   ogType = 'website',
+  jsonLd,
 } = Astro.props;
 
+const isDemo = shouldIncludeFixtures();
 const fullTitle = title ? `${title} — ${PROJECT_IDENTITY.name}` : PROJECT_IDENTITY.name;
 const siteOrigin = Astro.site?.toString().replace(/\/$/, '') ?? '';
 const canonicalUrl = siteOrigin ? `${siteOrigin}${canonicalPath}` : canonicalPath;
@@ -32,8 +37,16 @@ const navItems = [
   { label: 'Guias', href: ROUTES.guides },
   { label: 'Colecionismo', href: ROUTES.collecting },
   { label: 'Biblioteca', href: ROUTES.works },
-  { label: 'Busca', href: ROUTES.search },
 ];
+
+const structuredData = jsonLd ?? {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: PROJECT_IDENTITY.name,
+  description: PROJECT_IDENTITY.tagline,
+  inLanguage: 'pt-BR',
+  url: canonicalUrl,
+};
 ---
 
 <!doctype html>
@@ -42,6 +55,7 @@ const navItems = [
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    {isDemo && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonicalUrl} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
@@ -49,6 +63,7 @@ const navItems = [
     <meta property="og:locale" content="pt_BR" />
     <link rel="alternate" type="application/rss+xml" title="Mangá Atlas RSS" href="/rss.xml" />
     <title>{fullTitle}</title>
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
     <script is:inline>
       (() => {
         try {
@@ -68,6 +83,14 @@ const navItems = [
     <a class="skip-link" href="#conteudo">
       Pular para o conteúdo principal
     </a>
+    {isDemo && (
+      <div class="ma-demo-banner" role="note">
+        <div class="ma-container">
+          <strong>Modo demonstração</strong> — exibindo fixtures sintéticas isoladas do build
+          editorial real (`noindex`).
+        </div>
+      </div>
+    )}
     <header class="ma-header">
       <div class="ma-container ma-header__inner">
         <a class="ma-brand" href={ROUTES.home} aria-label="Mangá Atlas — Página inicial">
@@ -85,6 +108,15 @@ const navItems = [
               {item.label}
             </a>
           ))}
+          <a
+            href={ROUTES.search}
+            aria-label="Pesquisar no Mangá Atlas"
+            aria-current={currentPath.startsWith(ROUTES.search) ? 'page' : undefined}
+            style="display: inline-flex; align-items: center; gap: 0.3rem;"
+          >
+            <Search size={15} aria-hidden="true" />
+            <span>Busca</span>
+          </a>
           <ThemeToggle />
         </nav>
       </div>
@@ -105,6 +137,7 @@ const navItems = [
           <a href={ROUTES.about}>Sobre</a>
           <a href={ROUTES.editorialPolicy}>Política Editorial</a>
           <a href={ROUTES.contact}>Contato</a>
+          <a href={ROUTES.tags}>Tags</a>
           <a href="/rss.xml">RSS</a>
         </nav>
       </div>

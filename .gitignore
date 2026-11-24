@@ -1,5 +1,6 @@
 # Build & Astro
 dist/
+dist-demo/
 .astro/
 
 # Dependencies
@@ -20,6 +21,10 @@ pnpm-debug.log*
 coverage/
 playwright-report/
 test-results/
+
+# Generated Demo Fixtures (reproducible via scripts/generate-demo-fixtures.mjs)
+src/content/**/fixture-*
+public/demo-assets/
 
 # OS & Editors
 .DS_Store

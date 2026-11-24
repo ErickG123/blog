@@ -1,7 +1,0 @@
-{
-  "id": "fixture-creator-01",
-  "slug": "autor-sintetico-atlas",
-  "name": "Autor Sintético (Fixture)",
-  "bio": "Registro sintético exclusivo para demonstração e testes automatizados.",
-  "isFixture": true
-}

@@ -12,7 +12,32 @@ import { ROUTES } from '@shared/domain/rules';
     <p>Busque por títulos de obras, reviews, artigos, guias e edições físicas.</p>
   </section>
 
-  <div id="ma-search" aria-live="polite"></div>
+  <form class="ma-search-box" role="search" data-search-form>
+    <label for="ma-search-input" class="sr-only">
+      Termo de busca
+    </label>
+    <input
+      id="ma-search-input"
+      type="search"
+      name="q"
+      placeholder="Buscar obras, reviews, artigos..."
+      autocomplete="off"
+    />
+    <button type="submit" class="ma-btn ma-btn--primary">
+      Buscar
+    </button>
+    <button type="button" class="ma-btn" data-search-clear>
+      Limpar
+    </button>
+  </form>
+
+  <div
+    data-search-status
+    role="status"
+    aria-live="polite"
+    style="margin-bottom: 1rem; color: var(--ma-text-muted); font-size: var(--ma-text-sm);"
+  ></div>
+  <ul class="ma-entry-list" data-search-results></ul>
 
   <noscript>
     <p>
@@ -23,20 +48,97 @@ import { ROUTES } from '@shared/domain/rules';
     </p>
   </noscript>
 
-  <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
-  <script is:inline src="/pagefind/pagefind-ui.js"></script>
   <script is:inline>
-    window.addEventListener('DOMContentLoaded', () => {
-      if (typeof window.PagefindUI === 'function') {
-        new window.PagefindUI({
-          element: '#ma-search',
-          showSubResults: true,
-          translations: {
-            placeholder: 'Buscar obras, reviews, artigos...',
-            zero_results: 'Nenhum resultado encontrado para "[SEARCH_TERM]".',
-          },
-        });
+    (() => {
+      const form = document.querySelector('[data-search-form]');
+      const input = document.getElementById('ma-search-input');
+      const clearBtn = document.querySelector('[data-search-clear]');
+      const statusEl = document.querySelector('[data-search-status]');
+      const resultsEl = document.querySelector('[data-search-results]');
+      let pagefind = null;
+      let loadFailed = false;
+
+      async function ensurePagefind() {
+        if (pagefind) return pagefind;
+        if (loadFailed) return null;
+        try {
+          const mod = await import('/pagefind/pagefind.js');
+          await mod.init();
+          pagefind = mod;
+          return pagefind;
+        } catch {
+          loadFailed = true;
+          if (statusEl) {
+            statusEl.textContent =
+              'Índice de busca indisponível neste modo (ex.: servidor dev sem build prévio). Execute "npm run build:demo" e "npm run preview:demo" para usar a busca completa.';
+          }
+          return null;
+        }
       }
-    });
+
+      async function runSearch(query) {
+        const term = (query || '').trim();
+        if (!resultsEl || !statusEl) return;
+        resultsEl.innerHTML = '';
+        if (!term) {
+          statusEl.textContent = 'Digite um termo para pesquisar no acervo publicado.';
+          return;
+        }
+        statusEl.textContent = 'Buscando...';
+        const pf = await ensurePagefind();
+        if (!pf) return;
+
+        const search = await pf.search(term);
+        const items = await Promise.all(search.results.slice(0, 20).map((r) => r.data()));
+        if (items.length === 0) {
+          statusEl.textContent = `Nenhum resultado encontrado para "${term}".`;
+          return;
+        }
+        statusEl.textContent = `${items.length} resultado(s) encontrado(s) para "${term}".`;
+        for (const item of items) {
+          const li = document.createElement('li');
+          li.className = 'ma-entry';
+          const h2 = document.createElement('h2');
+          h2.className = 'ma-entry__title';
+          const a = document.createElement('a');
+          a.href = item.url;
+          a.textContent = item.meta?.title || item.url;
+          h2.appendChild(a);
+          const p = document.createElement('p');
+          p.className = 'ma-entry__summary';
+          p.textContent = (item.excerpt || '').replace(/<[^>]+>/g, '');
+          li.appendChild(h2);
+          li.appendChild(p);
+          resultsEl.appendChild(li);
+        }
+      }
+
+      form?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const val = input?.value || '';
+        const url = new URL(window.location.href);
+        if (val.trim()) url.searchParams.set('q', val.trim());
+        else url.searchParams.delete('q');
+        window.history.replaceState({}, '', url);
+        runSearch(val);
+      });
+
+      clearBtn?.addEventListener('click', () => {
+        if (input) input.value = '';
+        const url = new URL(window.location.href);
+        url.searchParams.delete('q');
+        window.history.replaceState({}, '', url);
+        runSearch('');
+        input?.focus();
+      });
+
+      const initialQ = new URLSearchParams(window.location.search).get('q') || '';
+      if (initialQ && input) {
+        input.value = initialQ;
+        runSearch(initialQ);
+      } else if (statusEl) {
+        statusEl.textContent = 'Digite um termo para pesquisar no acervo publicado.';
+      }
+    })();
   </script>
 </BaseLayout>
