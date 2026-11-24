@@ -1,0 +1,62 @@
+---
+import { SunMoon } from '@lucide/astro';
+---
+
+<button
+  type="button"
+  class="ma-theme-toggle"
+  data-theme-toggle
+  aria-label="Alternar tema de cores (Sistema, Claro ou Escuro)"
+>
+  <SunMoon size={16} aria-hidden="true" />
+  <span data-theme-label>Tema: Sistema</span>
+</button>
+
+<script is:inline>
+  (() => {
+    const STORAGE_KEY = 'ma-theme';
+    const ORDER = ['system', 'light', 'dark'];
+    const LABELS = {
+      system: 'Tema: Sistema',
+      light: 'Tema: Claro',
+      dark: 'Tema: Escuro',
+    };
+
+    const getStored = () => {
+      try {
+        const val = window.localStorage.getItem(STORAGE_KEY);
+        return val && ORDER.includes(val) ? val : 'system';
+      } catch {
+        return 'system';
+      }
+    };
+
+    const applyTheme = (mode) => {
+      const root = document.documentElement;
+      const prefersDark =
+        window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const resolved = mode === 'system' ? (prefersDark ? 'dark' : 'light') : mode;
+      root.setAttribute('data-theme', resolved);
+      root.setAttribute('data-theme-mode', mode);
+      document.querySelectorAll('[data-theme-label]').forEach((el) => {
+        el.textContent = LABELS[mode] || LABELS.system;
+      });
+    };
+
+    const current = getStored();
+    applyTheme(current);
+
+    document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mode = getStored();
+        const next = ORDER[(ORDER.indexOf(mode) + 1) % ORDER.length];
+        try {
+          window.localStorage.setItem(STORAGE_KEY, next);
+        } catch {
+          // fallback sem persistência
+        }
+        applyTheme(next);
+      });
+    });
+  })();
+</script>

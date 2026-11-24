@@ -1,0 +1,39 @@
+---
+import BaseLayout from '@shared/layouts/BaseLayout.astro';
+import { ROUTES } from '@shared/domain/rules';
+import { getPublicPublishers, getPublicWorks } from '@features/content/content.selectors';
+
+export async function getStaticPaths() {
+  const publishers = await getPublicPublishers();
+  return publishers.map((publisher) => ({
+    params: { slug: publisher.slug },
+    props: { publisher },
+  }));
+}
+
+const { publisher } = Astro.props;
+const works = (await getPublicWorks()).filter((w) => w.publisherIds?.includes(publisher.id));
+---
+
+<BaseLayout
+  title={publisher.name}
+  description={publisher.description ?? `Obras publicadas por ${publisher.name}.`}
+>
+  <section class="ma-hero">
+    <h1>{publisher.name}</h1>
+    {publisher.description && <p>{publisher.description}</p>}
+  </section>
+
+  <h2>Obras catalogadas</h2>
+  {works.length > 0 ? (
+    <ul>
+      {works.map((w) => (
+        <li>
+          <a href={ROUTES.work(w.slug)}>{w.title}</a>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p style="color: var(--ma-text-muted);">Nenhuma obra pública vinculada no momento.</p>
+  )}
+</BaseLayout>

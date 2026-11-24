@@ -1,0 +1,69 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '@shared/layouts/BaseLayout.astro';
+import { formatDatePtBr, ROUTES } from '@shared/domain/rules';
+import {
+  getPublicCollectingPosts,
+  getPublicEditions,
+  getPublicWorks,
+} from '@features/content/content.selectors';
+
+export async function getStaticPaths() {
+  const posts = await getPublicCollectingPosts();
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post.entry);
+const [editions, works] = await Promise.all([getPublicEditions(), getPublicWorks()]);
+const postEditions = editions.filter((e) => post.editionIds.includes(e.id));
+const postWorks = works.filter((w) => post.workIds.includes(w.id));
+---
+
+<BaseLayout title={post.title} description={post.summary} ogType="article">
+  <article data-pagefind-body>
+    <header class="ma-hero">
+      <h1>{post.title}</h1>
+      <p>{post.summary}</p>
+      <p style="font-size: var(--ma-text-sm); margin-top: 0.75rem;">
+        Publicado em <time datetime={post.publishedAt}>{formatDatePtBr(post.publishedAt)}</time>
+      </p>
+    </header>
+
+    {postEditions.length > 0 && (
+      <section class="ma-meta-box" aria-label="Edições analisadas">
+        <dl>
+          {postEditions.map((ed) => (
+            <div>
+              <dt>{ed.title}</dt>
+              <dd>
+                {[ed.formatLabel, ed.paperType, ed.binding].filter(Boolean).join(' · ') ||
+                  ed.language}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    )}
+
+    <div class="ma-prose">
+      <Content />
+    </div>
+
+    {postWorks.length > 0 && (
+      <section style="margin-top: 2rem;">
+        <h2>Obras relacionadas</h2>
+        <ul>
+          {postWorks.map((w) => (
+            <li>
+              <a href={ROUTES.work(w.slug)}>{w.title}</a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </article>
+</BaseLayout>

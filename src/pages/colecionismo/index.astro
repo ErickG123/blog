@@ -1,0 +1,41 @@
+---
+import BaseLayout from '@shared/layouts/BaseLayout.astro';
+import EmptyState from '@shared/ui/EmptyState.astro';
+import { formatDatePtBr, ROUTES } from '@shared/domain/rules';
+import { getPublicCollectingPosts } from '@features/content/content.selectors';
+
+const posts = await getPublicCollectingPosts();
+---
+
+<BaseLayout
+  title="Colecionismo e edições físicas"
+  description="Análises de acabamento, papel, sobrecapa, tradução e comparação de edições físicas."
+>
+  <section class="ma-hero">
+    <h1>Colecionismo e edições físicas</h1>
+    <p>
+      Detalhes de papel, encadernação, formatos e comparações entre edições de mangás em estante.
+    </p>
+  </section>
+
+  {posts.length > 0 ? (
+    <ul class="ma-entry-list">
+      {posts.map((post) => (
+        <li class="ma-entry">
+          <div class="ma-entry__meta">
+            <time datetime={post.publishedAt}>{formatDatePtBr(post.publishedAt)}</time>
+          </div>
+          <h2 class="ma-entry__title">
+            <a href={ROUTES.collectingPost(post.slug)}>{post.title}</a>
+          </h2>
+          <p class="ma-entry__summary">{post.summary}</p>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <EmptyState
+      title="Nenhuma publicação de colecionismo ainda"
+      description="Textos sobre edições físicas, acabamento e estante aparecerão aqui."
+    />
+  )}
+</BaseLayout>

@@ -1,0 +1,40 @@
+---
+import BaseLayout from '@shared/layouts/BaseLayout.astro';
+import EmptyState from '@shared/ui/EmptyState.astro';
+import { formatDatePtBr, ROUTES } from '@shared/domain/rules';
+import { getPublicRecommendations } from '@features/content/content.selectors';
+
+const guides = await getPublicRecommendations();
+---
+
+<BaseLayout
+  title="Guias e recomendações"
+  description="Listas curadas e guias de leitura conectados à biblioteca de obras."
+>
+  <section class="ma-hero">
+    <h1>Guias e recomendações</h1>
+    <p>Listas ordenadas e curadoria editorial para descobrir novas leituras com contexto.</p>
+  </section>
+
+  {guides.length > 0 ? (
+    <ul class="ma-entry-list">
+      {guides.map((guide) => (
+        <li class="ma-entry">
+          <div class="ma-entry__meta">
+            <time datetime={guide.publishedAt}>{formatDatePtBr(guide.publishedAt)}</time>
+            <span>{guide.items.length} obra(s)</span>
+          </div>
+          <h2 class="ma-entry__title">
+            <a href={ROUTES.guide(guide.slug)}>{guide.title}</a>
+          </h2>
+          <p class="ma-entry__summary">{guide.summary}</p>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <EmptyState
+      title="Nenhum guia publicado ainda"
+      description="Guias de entrada e listas de recomendações aparecerão aqui."
+    />
+  )}
+</BaseLayout>

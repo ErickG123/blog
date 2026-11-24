@@ -1,0 +1,18 @@
+---
+interface Props {
+  label: string;
+  href?: string;
+  variant?: 'default' | 'accent' | 'secondary';
+}
+
+const { label, href, variant = 'default' } = Astro.props;
+const variantClass = variant === 'default' ? 'ma-tag' : `ma-tag ma-tag--${variant}`;
+---
+
+{href ? (
+  <a class={variantClass} href={href}>
+    {label}
+  </a>
+) : (
+  <span class={variantClass}>{label}</span>
+)}

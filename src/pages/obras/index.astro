@@ -1,0 +1,45 @@
+---
+import BaseLayout from '@shared/layouts/BaseLayout.astro';
+import TagChip from '@shared/ui/TagChip.astro';
+import EmptyState from '@shared/ui/EmptyState.astro';
+import { ROUTES } from '@shared/domain/rules';
+import { getPublicWorks } from '@features/content/content.selectors';
+
+const works = await getPublicWorks();
+---
+
+<BaseLayout
+  title="Biblioteca de obras"
+  description="Catálogo factual de mangás, animes e manhwas comentados no Mangá Atlas."
+>
+  <section class="ma-hero">
+    <h1>Biblioteca de obras</h1>
+    <p>
+      Fichas factuais separadas de opiniões críticas, conectando obras, criadores, editoras,
+      estúdios e publicações do blog.
+    </p>
+  </section>
+
+  {works.length > 0 ? (
+    <div class="ma-grid">
+      {works.map((work) => (
+        <article class="ma-work-card">
+          <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+            <TagChip label={work.kind} variant="accent" />
+            <TagChip label={work.format} />
+            {work.releaseYear && <TagChip label={String(work.releaseYear)} />}
+          </div>
+          <h2>
+            <a href={ROUTES.work(work.slug)}>{work.title}</a>
+          </h2>
+          <p>{work.synopsis}</p>
+        </article>
+      ))}
+    </div>
+  ) : (
+    <EmptyState
+      title="Nenhuma obra pública cadastrada"
+      description="Quando obras autorizadas forem adicionadas à coleção, suas fichas aparecerão aqui."
+    />
+  )}
+</BaseLayout>

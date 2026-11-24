@@ -1,0 +1,6 @@
+{
+  "fromWorkId": "fixture-work-02",
+  "toWorkId": "fixture-work-01",
+  "type": "adaptation",
+  "note": "Adaptação sintética para testes de relacionamento."
+}

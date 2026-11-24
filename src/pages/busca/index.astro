@@ -1,0 +1,42 @@
+---
+import BaseLayout from '@shared/layouts/BaseLayout.astro';
+import { ROUTES } from '@shared/domain/rules';
+---
+
+<BaseLayout
+  title="Busca"
+  description="Pesquisa estática global em obras, reviews, artigos, guias e colecionismo."
+>
+  <section class="ma-hero">
+    <h1>Pesquisa global</h1>
+    <p>Busque por títulos de obras, reviews, artigos, guias e edições físicas.</p>
+  </section>
+
+  <div id="ma-search" aria-live="polite"></div>
+
+  <noscript>
+    <p>
+      A pesquisa interativa utiliza índice estático local (Pagefind) via JavaScript. Sem JavaScript,
+      você pode navegar diretamente por <a href={ROUTES.works}>Biblioteca</a>,{' '}
+      <a href={ROUTES.reviews}>Reviews</a>, <a href={ROUTES.articles}>Artigos</a> ou{' '}
+      <a href={ROUTES.tags}>Tags</a>.
+    </p>
+  </noscript>
+
+  <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+  <script is:inline src="/pagefind/pagefind-ui.js"></script>
+  <script is:inline>
+    window.addEventListener('DOMContentLoaded', () => {
+      if (typeof window.PagefindUI === 'function') {
+        new window.PagefindUI({
+          element: '#ma-search',
+          showSubResults: true,
+          translations: {
+            placeholder: 'Buscar obras, reviews, artigos...',
+            zero_results: 'Nenhum resultado encontrado para "[SEARCH_TERM]".',
+          },
+        });
+      }
+    });
+  </script>
+</BaseLayout>

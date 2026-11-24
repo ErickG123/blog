@@ -1,0 +1,26 @@
+---
+import BaseLayout from '@shared/layouts/BaseLayout.astro';
+import TagChip from '@shared/ui/TagChip.astro';
+import EmptyState from '@shared/ui/EmptyState.astro';
+import { ROUTES } from '@shared/domain/rules';
+import { getPublicTags } from '@features/content/content.selectors';
+
+const tags = await getPublicTags();
+---
+
+<BaseLayout title="Tags" description="Explore publicações do Mangá Atlas por tema.">
+  <section class="ma-hero">
+    <h1>Tags</h1>
+    <p>Navegue pelos temas editoriais do Mangá Atlas.</p>
+  </section>
+
+  {tags.length > 0 ? (
+    <div style="display: flex; flex-wrap: wrap; gap: 0.6rem;">
+      {tags.map((tag) => (
+        <TagChip label={tag.name} href={ROUTES.tag(tag.slug)} />
+      ))}
+    </div>
+  ) : (
+    <EmptyState title="Nenhuma tag cadastrada" description="Tags editoriais aparecerão aqui." />
+  )}
+</BaseLayout>

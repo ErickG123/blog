@@ -1,0 +1,21 @@
+{
+  "id": "fixture-work-01",
+  "slug": "cronicas-do-atlas-fixture",
+  "title": "Crônicas do Atlas (Fixture Sintética)",
+  "kind": "manga",
+  "format": "series",
+  "country": "JP",
+  "originalLanguage": "ja",
+  "releaseYear": 2024,
+  "publicationStatus": "ongoing",
+  "synopsis": "Obra sintética criada exclusivamente para testes de validação e modo demonstração do Mangá Atlas.",
+  "credits": [
+    {
+      "creatorId": "fixture-creator-01",
+      "role": "author"
+    }
+  ],
+  "publisherIds": ["fixture-publisher-01"],
+  "genreIds": ["genre-drama"],
+  "isFixture": true
+}

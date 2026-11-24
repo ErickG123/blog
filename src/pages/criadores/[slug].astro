@@ -1,0 +1,38 @@
+---
+import BaseLayout from '@shared/layouts/BaseLayout.astro';
+import { ROUTES } from '@shared/domain/rules';
+import { getPublicCreators, getPublicWorks } from '@features/content/content.selectors';
+
+export async function getStaticPaths() {
+  const creators = await getPublicCreators();
+  return creators.map((creator) => ({
+    params: { slug: creator.slug },
+    props: { creator },
+  }));
+}
+
+const { creator } = Astro.props;
+const works = (await getPublicWorks()).filter((w) =>
+  w.credits.some((c) => c.creatorId === creator.id),
+);
+---
+
+<BaseLayout title={creator.name} description={creator.bio ?? `Obras de ${creator.name}.`}>
+  <section class="ma-hero">
+    <h1>{creator.name}</h1>
+    {creator.bio && <p>{creator.bio}</p>}
+  </section>
+
+  <h2>Obras na biblioteca</h2>
+  {works.length > 0 ? (
+    <ul>
+      {works.map((w) => (
+        <li>
+          <a href={ROUTES.work(w.slug)}>{w.title}</a>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p style="color: var(--ma-text-muted);">Nenhuma obra pública vinculada no momento.</p>
+  )}
+</BaseLayout>

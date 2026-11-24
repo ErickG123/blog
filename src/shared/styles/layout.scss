@@ -1,0 +1,92 @@
+// Layout global — Mangá Atlas (Fases 04 e 05)
+.ma-header {
+  border-bottom: 1px solid var(--ma-border);
+  background: var(--ma-surface);
+}
+
+.ma-header__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ma-space-3);
+  padding-block: var(--ma-space-4);
+}
+
+.ma-brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  font-size: var(--ma-text-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ma-text);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--ma-text);
+  }
+
+  &__accent {
+    color: var(--ma-accent);
+  }
+}
+
+.ma-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ma-space-3);
+
+  a {
+    color: var(--ma-text-muted);
+    font-size: var(--ma-text-sm);
+    font-weight: 600;
+    text-decoration: none;
+    padding: 0.25rem 0.4rem;
+    border-radius: var(--ma-radius-sm);
+
+    &:hover,
+    &[aria-current='page'] {
+      color: var(--ma-accent);
+      background: var(--ma-accent-soft);
+    }
+  }
+}
+
+.ma-main {
+  flex: 1;
+  padding-block: var(--ma-space-6) var(--ma-space-10);
+}
+
+.ma-footer {
+  border-top: 1px solid var(--ma-border);
+  background: var(--ma-surface);
+  padding-block: var(--ma-space-6);
+  font-size: var(--ma-text-sm);
+  color: var(--ma-text-muted);
+}
+
+.ma-footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ma-space-4);
+}
+
+.ma-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ma-space-4);
+
+  a {
+    color: var(--ma-text-muted);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--ma-accent);
+      text-decoration: underline;
+    }
+  }
+}

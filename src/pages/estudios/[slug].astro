@@ -1,0 +1,39 @@
+---
+import BaseLayout from '@shared/layouts/BaseLayout.astro';
+import { ROUTES } from '@shared/domain/rules';
+import { getPublicStudios, getPublicWorks } from '@features/content/content.selectors';
+
+export async function getStaticPaths() {
+  const studios = await getPublicStudios();
+  return studios.map((studio) => ({
+    params: { slug: studio.slug },
+    props: { studio },
+  }));
+}
+
+const { studio } = Astro.props;
+const works = (await getPublicWorks()).filter((w) => w.studioIds?.includes(studio.id));
+---
+
+<BaseLayout
+  title={studio.name}
+  description={studio.description ?? `Obras produzidas por ${studio.name}.`}
+>
+  <section class="ma-hero">
+    <h1>{studio.name}</h1>
+    {studio.description && <p>{studio.description}</p>}
+  </section>
+
+  <h2>Obras catalogadas</h2>
+  {works.length > 0 ? (
+    <ul>
+      {works.map((w) => (
+        <li>
+          <a href={ROUTES.work(w.slug)}>{w.title}</a>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p style="color: var(--ma-text-muted);">Nenhuma obra pública vinculada no momento.</p>
+  )}
+</BaseLayout>

@@ -1,0 +1,18 @@
+---
+interface Props {
+  title: string;
+  href?: string;
+  linkLabel?: string;
+}
+
+const { title, href, linkLabel = 'Ver tudo' } = Astro.props;
+---
+
+<div class="ma-section-heading">
+  <h2>{title}</h2>
+  {href && (
+    <a class="ma-section-heading__link" href={href}>
+      {linkLabel}
+    </a>
+  )}
+</div>

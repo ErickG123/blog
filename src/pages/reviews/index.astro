@@ -1,0 +1,48 @@
+---
+import BaseLayout from '@shared/layouts/BaseLayout.astro';
+import TagChip from '@shared/ui/TagChip.astro';
+import EmptyState from '@shared/ui/EmptyState.astro';
+import { formatDatePtBr, ROUTES } from '@shared/domain/rules';
+import { formatSpoilerLabel } from '@shared/utils/editorial';
+import { getPublicReviews } from '@features/content/content.selectors';
+
+const reviews = await getPublicReviews();
+---
+
+<BaseLayout
+  title="Reviews"
+  description="Críticas autorais de volumes, obras completas, arcos, temporadas e filmes."
+>
+  <section class="ma-hero">
+    <h1>Reviews</h1>
+    <p>
+      Críticas autorais com indicação clara de escopo, nível de spoiler e nota editorial opcional.
+    </p>
+  </section>
+
+  {reviews.length > 0 ? (
+    <ul class="ma-entry-list">
+      {reviews.map((review) => (
+        <li class="ma-entry">
+          <div class="ma-entry__meta">
+            <time datetime={review.publishedAt}>{formatDatePtBr(review.publishedAt)}</time>
+            <TagChip label={review.scopeLabel ?? review.scope} />
+            <TagChip label={formatSpoilerLabel(review.spoilerLevel)} variant="secondary" />
+            {review.rating !== undefined && (
+              <span class="ma-rating">{review.rating.toFixed(1)} / 5</span>
+            )}
+          </div>
+          <h2 class="ma-entry__title">
+            <a href={ROUTES.review(review.slug)}>{review.title}</a>
+          </h2>
+          <p class="ma-entry__summary">{review.summary}</p>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <EmptyState
+      title="Nenhuma review publicada ainda"
+      description="Quando reviews forem publicadas, elas aparecerão listadas em ordem cronológica."
+    />
+  )}
+</BaseLayout>

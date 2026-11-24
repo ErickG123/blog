@@ -1,0 +1,21 @@
+---
+import BaseLayout from '@shared/layouts/BaseLayout.astro';
+import Button from '@shared/ui/Button.astro';
+import { ROUTES } from '@shared/domain/rules';
+---
+
+<BaseLayout title="Página não encontrada" description="O endereço solicitado não foi encontrado.">
+  <section class="ma-prose">
+    <h1>404 — Página não encontrada</h1>
+    <p>
+      O endereço que você tentou acessar não existe ou foi movido. Você pode voltar para a página
+      inicial ou explorar a biblioteca de obras.
+    </p>
+    <p>
+      <Button href={ROUTES.home} variant="primary">
+        Voltar ao início
+      </Button>
+      <Button href={ROUTES.works}>Explorar biblioteca</Button>
+    </p>
+  </section>
+</BaseLayout>

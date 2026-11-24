@@ -1,0 +1,113 @@
+---
+import '@shared/styles/base.scss';
+import '@shared/styles/components.scss';
+import '@shared/styles/layout.scss';
+import '@shared/styles/editorial.scss';
+import ThemeToggle from '@shared/ui/ThemeToggle.astro';
+import { PROJECT_IDENTITY } from '@shared/utils/project';
+import { ROUTES } from '@shared/domain/rules';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonicalPath?: string;
+  ogType?: 'website' | 'article';
+}
+
+const {
+  title,
+  description = PROJECT_IDENTITY.tagline,
+  canonicalPath = Astro.url.pathname,
+  ogType = 'website',
+} = Astro.props;
+
+const fullTitle = title ? `${title} — ${PROJECT_IDENTITY.name}` : PROJECT_IDENTITY.name;
+const siteOrigin = Astro.site?.toString().replace(/\/$/, '') ?? '';
+const canonicalUrl = siteOrigin ? `${siteOrigin}${canonicalPath}` : canonicalPath;
+const currentPath = Astro.url.pathname;
+
+const navItems = [
+  { label: 'Reviews', href: ROUTES.reviews },
+  { label: 'Artigos', href: ROUTES.articles },
+  { label: 'Guias', href: ROUTES.guides },
+  { label: 'Colecionismo', href: ROUTES.collecting },
+  { label: 'Biblioteca', href: ROUTES.works },
+  { label: 'Busca', href: ROUTES.search },
+];
+---
+
+<!doctype html>
+<html lang={PROJECT_IDENTITY.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:locale" content="pt_BR" />
+    <link rel="alternate" type="application/rss+xml" title="Mangá Atlas RSS" href="/rss.xml" />
+    <title>{fullTitle}</title>
+    <script is:inline>
+      (() => {
+        try {
+          const stored = window.localStorage.getItem('ma-theme');
+          const prefersDark =
+            window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const resolved =
+            stored === 'dark' || stored === 'light' ? stored : prefersDark ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', resolved);
+        } catch {
+          // fallback seguro sem localStorage
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#conteudo">
+      Pular para o conteúdo principal
+    </a>
+    <header class="ma-header">
+      <div class="ma-container ma-header__inner">
+        <a class="ma-brand" href={ROUTES.home} aria-label="Mangá Atlas — Página inicial">
+          <span>Mangá</span>
+          <span class="ma-brand__accent">Atlas</span>
+        </a>
+        <nav class="ma-nav" aria-label="Navegação principal">
+          {navItems.map((item) => (
+            <a
+              href={item.href}
+              aria-current={
+                currentPath === item.href || currentPath.startsWith(item.href) ? 'page' : undefined
+              }
+            >
+              {item.label}
+            </a>
+          ))}
+          <ThemeToggle />
+        </nav>
+      </div>
+    </header>
+
+    <main id="conteudo" class="ma-main">
+      <div class="ma-container">
+        <slot />
+      </div>
+    </main>
+
+    <footer class="ma-footer">
+      <div class="ma-container ma-footer__inner">
+        <p style="margin: 0;">
+          <strong>{PROJECT_IDENTITY.name}</strong> — Blog editorial independente em pt-BR.
+        </p>
+        <nav class="ma-footer__links" aria-label="Links institucionais">
+          <a href={ROUTES.about}>Sobre</a>
+          <a href={ROUTES.editorialPolicy}>Política Editorial</a>
+          <a href={ROUTES.contact}>Contato</a>
+          <a href="/rss.xml">RSS</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,68 @@
+---
+import BaseLayout from '@shared/layouts/BaseLayout.astro';
+import EmptyState from '@shared/ui/EmptyState.astro';
+import { ROUTES } from '@shared/domain/rules';
+import {
+  getPublicArticles,
+  getPublicCollectingPosts,
+  getPublicRecommendations,
+  getPublicReviews,
+  getPublicTags,
+} from '@features/content/content.selectors';
+
+export async function getStaticPaths() {
+  const tags = await getPublicTags();
+  return tags.map((tag) => ({
+    params: { slug: tag.slug },
+    props: { tag },
+  }));
+}
+
+const { tag } = Astro.props;
+const [reviews, articles, guides, collecting] = await Promise.all([
+  getPublicReviews(),
+  getPublicArticles(),
+  getPublicRecommendations(),
+  getPublicCollectingPosts(),
+]);
+
+const matches = [
+  ...reviews
+    .filter((r) => r.tagIds.includes(tag.id))
+    .map((r) => ({ title: r.title, href: ROUTES.review(r.slug), summary: r.summary })),
+  ...articles
+    .filter((a) => a.tagIds.includes(tag.id))
+    .map((a) => ({ title: a.title, href: ROUTES.article(a.slug), summary: a.summary })),
+  ...guides
+    .filter((g) => g.tagIds.includes(tag.id))
+    .map((g) => ({ title: g.title, href: ROUTES.guide(g.slug), summary: g.summary })),
+  ...collecting
+    .filter((c) => c.tagIds.includes(tag.id))
+    .map((c) => ({ title: c.title, href: ROUTES.collectingPost(c.slug), summary: c.summary })),
+];
+---
+
+<BaseLayout title={`Tag: ${tag.name}`} description={tag.description ?? `Textos sobre ${tag.name}.`}>
+  <section class="ma-hero">
+    <h1>Tag: {tag.name}</h1>
+    {tag.description && <p>{tag.description}</p>}
+  </section>
+
+  {matches.length > 0 ? (
+    <ul class="ma-entry-list">
+      {matches.map((item) => (
+        <li class="ma-entry">
+          <h2 class="ma-entry__title">
+            <a href={item.href}>{item.title}</a>
+          </h2>
+          <p class="ma-entry__summary">{item.summary}</p>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <EmptyState
+      title="Nenhuma publicação com esta tag ainda"
+      description="Quando textos públicos forem associados a esta tag, eles aparecerão aqui."
+    />
+  )}
+</BaseLayout>

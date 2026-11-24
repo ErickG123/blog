@@ -1,0 +1,95 @@
+// Tokens semânticos — Mangá Atlas (Fase 04)
+:root {
+  color-scheme: light;
+
+  // Paleta de marca (claro com contraste WCAG 2.2 AA)
+  --ma-bg: #f7f7f8;
+  --ma-surface: #ffffff;
+  --ma-surface-muted: #efeff2;
+  --ma-border: #d8d8e0;
+  --ma-border-strong: #b6b6c2;
+
+  --ma-text: #151518;
+  --ma-text-muted: #4b4b57;
+  --ma-text-inverse: #f7f7f8;
+
+  // Vermelho editorial (escurecido no tema claro para >= 4.5:1 sobre branco/claro)
+  --ma-accent: #c82333;
+  --ma-accent-hover: #a71b29;
+  --ma-accent-soft: #fdecee;
+
+  // Roxo discreto secundário
+  --ma-secondary: #6d3fd6;
+  --ma-secondary-soft: #f2edfe;
+
+  // Foco e estados
+  --ma-focus: #6d3fd6;
+  --ma-danger: #b91c1c;
+  --ma-warning: #9a5b00;
+  --ma-success: #166534;
+
+  // Tipografia (stack de sistema, zero fonte remota)
+  --ma-font-sans:
+    system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --ma-font-serif: Georgia, 'Times New Roman', serif;
+  --ma-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --ma-text-xs: 0.75rem;
+  --ma-text-sm: 0.875rem;
+  --ma-text-base: 1rem;
+  --ma-text-lg: 1.125rem;
+  --ma-text-xl: 1.375rem;
+  --ma-text-2xl: 1.75rem;
+  --ma-text-3xl: 2.25rem;
+
+  // Layout e ritmo
+  --ma-measure: 68ch;
+  --ma-container: 72rem;
+  --ma-space-1: 0.25rem;
+  --ma-space-2: 0.5rem;
+  --ma-space-3: 0.75rem;
+  --ma-space-4: 1rem;
+  --ma-space-5: 1.5rem;
+  --ma-space-6: 2rem;
+  --ma-space-8: 3rem;
+  --ma-space-10: 4rem;
+
+  --ma-radius-sm: 4px;
+  --ma-radius-md: 8px;
+  --ma-radius-pill: 999px;
+
+  --ma-transition: 160ms ease;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --ma-bg: #151518;
+  --ma-surface: #1d1d22;
+  --ma-surface-muted: #26262e;
+  --ma-border: #32323d;
+  --ma-border-strong: #4a4a59;
+
+  --ma-text: #f3f3f6;
+  --ma-text-muted: #b6b6c4;
+  --ma-text-inverse: #151518;
+
+  --ma-accent: #f0525e;
+  --ma-accent-hover: #ff6e79;
+  --ma-accent-soft: #311a1e;
+
+  --ma-secondary: #a78bfa;
+  --ma-secondary-soft: #241d38;
+
+  --ma-focus: #a78bfa;
+  --ma-danger: #f87171;
+  --ma-warning: #fbbf24;
+  --ma-success: #4ade80;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ma-transition: 0ms;
+  }
+}

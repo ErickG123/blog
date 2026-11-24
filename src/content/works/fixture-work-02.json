@@ -1,0 +1,21 @@
+{
+  "id": "fixture-work-02",
+  "slug": "cronicas-do-atlas-anime-fixture",
+  "title": "Crônicas do Atlas — Anime (Fixture Sintética)",
+  "kind": "anime",
+  "format": "series",
+  "country": "JP",
+  "originalLanguage": "ja",
+  "releaseYear": 2025,
+  "publicationStatus": "completed",
+  "synopsis": "Adaptação animada sintética vinculada à obra principal apenas para testes.",
+  "credits": [
+    {
+      "creatorId": "fixture-creator-01",
+      "role": "director"
+    }
+  ],
+  "studioIds": ["fixture-studio-01"],
+  "genreIds": ["genre-drama"],
+  "isFixture": true
+}

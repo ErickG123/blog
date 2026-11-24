@@ -1,0 +1,38 @@
+---
+import BaseLayout from '@shared/layouts/BaseLayout.astro';
+import TagChip from '@shared/ui/TagChip.astro';
+import EmptyState from '@shared/ui/EmptyState.astro';
+import { formatDatePtBr, ROUTES } from '@shared/domain/rules';
+import { getPublicArticles } from '@features/content/content.selectors';
+
+const articles = await getPublicArticles();
+---
+
+<BaseLayout title="Artigos e análises" description="Ensaios, análises temáticas e textos autorais.">
+  <section class="ma-hero">
+    <h1>Artigos e análises</h1>
+    <p>Ensaios, leituras temáticas e reflexões sobre narrativa, estética e mercado editorial.</p>
+  </section>
+
+  {articles.length > 0 ? (
+    <ul class="ma-entry-list">
+      {articles.map((article) => (
+        <li class="ma-entry">
+          <div class="ma-entry__meta">
+            <time datetime={article.publishedAt}>{formatDatePtBr(article.publishedAt)}</time>
+            <TagChip label={article.category} variant="accent" />
+          </div>
+          <h2 class="ma-entry__title">
+            <a href={ROUTES.article(article.slug)}>{article.title}</a>
+          </h2>
+          <p class="ma-entry__summary">{article.summary}</p>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <EmptyState
+      title="Nenhum artigo publicado ainda"
+      description="Ensaios e análises aparecerão aqui assim que forem publicados."
+    />
+  )}
+</BaseLayout>

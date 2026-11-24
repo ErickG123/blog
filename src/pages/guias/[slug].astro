@@ -1,0 +1,50 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '@shared/layouts/BaseLayout.astro';
+import { formatDatePtBr, ROUTES } from '@shared/domain/rules';
+import { getPublicRecommendations, getPublicWorks } from '@features/content/content.selectors';
+
+export async function getStaticPaths() {
+  const guides = await getPublicRecommendations();
+  return guides.map((guide) => ({
+    params: { slug: guide.slug },
+    props: { guide },
+  }));
+}
+
+const { guide } = Astro.props;
+const { Content } = await render(guide.entry);
+const works = await getPublicWorks();
+const workMap = new Map(works.map((w) => [w.id, w]));
+const orderedItems = [...guide.items].sort((a, b) => a.order - b.order);
+---
+
+<BaseLayout title={guide.title} description={guide.summary} ogType="article">
+  <article data-pagefind-body>
+    <header class="ma-hero">
+      <h1>{guide.title}</h1>
+      <p>{guide.summary}</p>
+      <p style="font-size: var(--ma-text-sm); margin-top: 0.75rem;">
+        Publicado em <time datetime={guide.publishedAt}>{formatDatePtBr(guide.publishedAt)}</time>
+      </p>
+    </header>
+
+    <div class="ma-prose">
+      <Content />
+    </div>
+
+    <ol style="margin-top: 2rem; display: grid; gap: 1rem; padding-left: 1.25rem;">
+      {orderedItems.map((item) => {
+        const work = workMap.get(item.workId);
+        return (
+          <li>
+            <strong>
+              {work ? <a href={ROUTES.work(work.slug)}>{work.title}</a> : item.workId}
+            </strong>
+            <p style="margin: 0.25rem 0 0; color: var(--ma-text-muted);">{item.pitch}</p>
+          </li>
+        );
+      })}
+    </ol>
+  </article>
+</BaseLayout>

@@ -1,0 +1,56 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '@shared/layouts/BaseLayout.astro';
+import TagChip from '@shared/ui/TagChip.astro';
+import { formatDatePtBr, ROUTES } from '@shared/domain/rules';
+import { estimateReadingMinutes } from '@shared/utils/editorial';
+import { getPublicArticles, getPublicWorks } from '@features/content/content.selectors';
+
+export async function getStaticPaths() {
+  const articles = await getPublicArticles();
+  return articles.map((article) => ({
+    params: { slug: article.slug },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const { Content } = await render(article.entry);
+const works = await getPublicWorks();
+const relatedWorks = works.filter((w) => article.relatedWorkIds?.includes(w.id));
+const readingMin = estimateReadingMinutes(article.entry.body ?? '');
+---
+
+<BaseLayout title={article.title} description={article.summary} ogType="article">
+  <article data-pagefind-body>
+    <header class="ma-hero">
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+        <TagChip label={article.category} variant="accent" />
+        <TagChip label={`${readingMin} min de leitura`} />
+      </div>
+      <h1>{article.title}</h1>
+      <p>{article.summary}</p>
+      <p style="font-size: var(--ma-text-sm); margin-top: 0.75rem;">
+        Publicado em{' '}
+        <time datetime={article.publishedAt}>{formatDatePtBr(article.publishedAt)}</time>
+      </p>
+    </header>
+
+    <div class="ma-prose">
+      <Content />
+    </div>
+
+    {relatedWorks.length > 0 && (
+      <section style="margin-top: 2rem;">
+        <h2>Obras citadas</h2>
+        <ul>
+          {relatedWorks.map((w) => (
+            <li>
+              <a href={ROUTES.work(w.slug)}>{w.title}</a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </article>
+</BaseLayout>
