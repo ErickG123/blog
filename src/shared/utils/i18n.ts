@@ -79,3 +79,18 @@ export function formatRatingPtBr(rating: number): string {
 export function formatCountPtBr(count: number, singular: string, plural: string): string {
   return `${count} ${count === 1 ? singular : plural}`;
 }
+
+export function formatCountryPtBr(code: string): string {
+  switch (code.toUpperCase()) {
+    case 'JP':
+      return 'Japão';
+    case 'BR':
+      return 'Brasil';
+    case 'KR':
+      return 'Coreia do Sul';
+    case 'US':
+      return 'Estados Unidos';
+    default:
+      return code;
+  }
+}

@@ -26,7 +26,7 @@ const {
 ---
 
 <div
-  class="ma-controls-bar"
+  class={filterOptions.length > 0 ? 'ma-controls-bar' : 'ma-controls-bar ma-controls-bar--compact'}
   data-list-controls
   data-container-selector={containerSelector}
   data-item-selector={itemSelector}

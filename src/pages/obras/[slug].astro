@@ -2,8 +2,13 @@
 import BaseLayout from '@shared/layouts/BaseLayout.astro';
 import SectionHeading from '@shared/ui/SectionHeading.astro';
 import TagChip from '@shared/ui/TagChip.astro';
-import MediaFigure from '@shared/ui/MediaFigure.astro';
 import { ROUTES } from '@shared/domain/rules';
+import {
+  formatCountryPtBr,
+  formatPublicationStatus,
+  formatWorkFormat,
+  formatWorkKind,
+} from '@shared/utils/i18n';
 import {
   getPublicCreators,
   getPublicEditions,
@@ -39,93 +44,119 @@ const workReviews = reviews.filter((r) => r.workId === work.id);
 
 <BaseLayout title={work.title} description={work.synopsis}>
   <article data-pagefind-body>
-    <header class="ma-hero">
-      <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
-        <TagChip label={work.kind} variant="accent" />
-        <TagChip label={work.format} />
-        <TagChip label={work.publicationStatus} />
+    <nav class="ma-breadcrumb" aria-label="Caminho de navegação">
+      <a href={ROUTES.home}>Início</a>
+      <span aria-hidden="true">/</span>
+      <a href={ROUTES.works}>Biblioteca</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">{work.title}</span>
+    </nav>
+
+    <header class="ma-work-detail-hero">
+      {work.cover && (
+        <figure class="ma-work-detail-hero__cover" style="margin: 0;">
+          <img
+            src={work.cover.src}
+            alt={work.cover.alt}
+            width={work.cover.width}
+            height={work.cover.height}
+            loading="eager"
+          />
+          <figcaption>Crédito: {work.cover.credit}</figcaption>
+        </figure>
+      )}
+
+      <div class="ma-work-detail-hero__info">
+        <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+          <TagChip label={formatWorkKind(work.kind)} variant="accent" />
+          <TagChip label={formatWorkFormat(work.format)} />
+          <TagChip label={formatPublicationStatus(work.publicationStatus)} variant="secondary" />
+        </div>
+        <h1>{work.title}</h1>
+        {work.originalTitle && (
+          <p style="font-style: italic; color: var(--ma-text-muted); margin: 0 0 0.75rem;">
+            {work.originalTitle}
+          </p>
+        )}
+        <p style="margin: 0 0 1.25rem; max-width: var(--ma-measure);">{work.synopsis}</p>
+
+        <section class="ma-meta-box" aria-label="Ficha técnica">
+          <dl>
+            {work.releaseYear && (
+              <div>
+                <dt>Ano</dt>
+                <dd>{work.releaseYear}</dd>
+              </div>
+            )}
+            {work.country && (
+              <div>
+                <dt>País</dt>
+                <dd>{formatCountryPtBr(work.country)}</dd>
+              </div>
+            )}
+            {work.credits.length > 0 && (
+              <div>
+                <dt>Criadores</dt>
+                <dd>
+                  {work.credits.map((credit, idx) => {
+                    const creator = creatorMap.get(credit.creatorId);
+                    return (
+                      <>
+                        {idx > 0 && ', '}
+                        {creator ? (
+                          <a href={ROUTES.creator(creator.slug)}>{creator.name}</a>
+                        ) : (
+                          credit.creatorId
+                        )}
+                      </>
+                    );
+                  })}
+                </dd>
+              </div>
+            )}
+            {workPublishers.length > 0 && (
+              <div>
+                <dt>Editoras</dt>
+                <dd>
+                  {workPublishers.map((pub, idx) => (
+                    <>
+                      {idx > 0 && ', '}
+                      <a href={ROUTES.publisher(pub.slug)}>{pub.name}</a>
+                    </>
+                  ))}
+                </dd>
+              </div>
+            )}
+            {workStudios.length > 0 && (
+              <div>
+                <dt>Estúdios</dt>
+                <dd>
+                  {workStudios.map((studio, idx) => (
+                    <>
+                      {idx > 0 && ', '}
+                      <a href={ROUTES.studio(studio.slug)}>{studio.name}</a>
+                    </>
+                  ))}
+                </dd>
+              </div>
+            )}
+          </dl>
+        </section>
       </div>
-      <h1>{work.title}</h1>
-      {work.originalTitle && <p style="font-style: italic;">{work.originalTitle}</p>}
-      <p>{work.synopsis}</p>
     </header>
-
-    {work.cover && <MediaFigure asset={work.cover} eager />}
-
-    <section class="ma-meta-box" aria-label="Ficha técnica">
-      <dl>
-        {work.releaseYear && (
-          <div>
-            <dt>Ano</dt>
-            <dd>{work.releaseYear}</dd>
-          </div>
-        )}
-        {work.country && (
-          <div>
-            <dt>País</dt>
-            <dd>{work.country}</dd>
-          </div>
-        )}
-        {work.credits.length > 0 && (
-          <div>
-            <dt>Criadores</dt>
-            <dd>
-              {work.credits.map((credit, idx) => {
-                const creator = creatorMap.get(credit.creatorId);
-                return (
-                  <>
-                    {idx > 0 && ', '}
-                    {creator ? (
-                      <a href={ROUTES.creator(creator.slug)}>{creator.name}</a>
-                    ) : (
-                      credit.creatorId
-                    )}
-                  </>
-                );
-              })}
-            </dd>
-          </div>
-        )}
-        {workPublishers.length > 0 && (
-          <div>
-            <dt>Editoras</dt>
-            <dd>
-              {workPublishers.map((pub, idx) => (
-                <>
-                  {idx > 0 && ', '}
-                  <a href={ROUTES.publisher(pub.slug)}>{pub.name}</a>
-                </>
-              ))}
-            </dd>
-          </div>
-        )}
-        {workStudios.length > 0 && (
-          <div>
-            <dt>Estúdios</dt>
-            <dd>
-              {workStudios.map((studio, idx) => (
-                <>
-                  {idx > 0 && ', '}
-                  <a href={ROUTES.studio(studio.slug)}>{studio.name}</a>
-                </>
-              ))}
-            </dd>
-          </div>
-        )}
-      </dl>
-    </section>
 
     {workEditions.length > 0 && (
       <section style="margin-top: 2rem;">
         <SectionHeading title="Edições físicas catalogadas" />
-        <div class="ma-grid">
+        <div class="ma-grid ma-grid--wide">
           {workEditions.map((ed) => (
-            <article class="ma-work-card">
+            <article class="ma-edition-card">
               <h3>{ed.title}</h3>
               <p>
                 {[ed.formatLabel, ed.paperType, ed.binding].filter(Boolean).join(' · ') ||
                   ed.language}
               </p>
+              {ed.releaseYear && <p>Ano: {ed.releaseYear}</p>}
             </article>
           ))}
         </div>
@@ -135,13 +166,13 @@ const workReviews = reviews.filter((r) => r.workId === work.id);
     {workReviews.length > 0 && (
       <section style="margin-top: 2rem;">
         <SectionHeading title="Reviews desta obra" />
-        <ul class="ma-entry-list">
+        <ul class="ma-related-grid">
           {workReviews.map((rev) => (
             <li class="ma-entry">
               <h3 class="ma-entry__title">
                 <a href={ROUTES.review(rev.slug)}>{rev.title}</a>
               </h3>
-              <p class="ma-entry__summary">{rev.summary}</p>
+              <p class="ma-entry__summary ma-clamp-2">{rev.summary}</p>
             </li>
           ))}
         </ul>

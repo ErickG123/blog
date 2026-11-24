@@ -5,6 +5,7 @@ import TagChip from '@shared/ui/TagChip.astro';
 import CopyLinkButton from '@shared/ui/CopyLinkButton.astro';
 import { formatDatePtBr, ROUTES } from '@shared/domain/rules';
 import { estimateReadingMinutes } from '@shared/utils/editorial';
+import { formatArticleCategory } from '@shared/utils/i18n';
 import { getPublicArticles, getPublicWorks } from '@features/content/content.selectors';
 
 export async function getStaticPaths() {
@@ -21,13 +22,22 @@ const works = await getPublicWorks();
 const relatedWorks = works.filter((w) => article.relatedWorkIds?.includes(w.id));
 const readingMin = estimateReadingMinutes(article.entry.body ?? '');
 const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+const hasSidebar = tocHeadings.length >= 3 || relatedWorks.length > 0;
 ---
 
 <BaseLayout title={article.title} description={article.summary} ogType="article">
   <article data-pagefind-body>
+    <nav class="ma-breadcrumb" aria-label="Caminho de navegação">
+      <a href={ROUTES.home}>Início</a>
+      <span aria-hidden="true">/</span>
+      <a href={ROUTES.articles}>Artigos</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">{article.title}</span>
+    </nav>
+
     <header class="ma-hero">
       <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
-        <TagChip label={article.category} variant="accent" />
+        <TagChip label={formatArticleCategory(article.category)} variant="accent" />
         <TagChip label={`${readingMin} min de leitura`} />
       </div>
       <h1>{article.title}</h1>
@@ -41,34 +51,46 @@ const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
       </div>
     </header>
 
-    {tocHeadings.length >= 3 && (
-      <nav class="ma-toc" aria-label="Índice do artigo">
-        <strong>Neste artigo</strong>
-        <ul>
-          {tocHeadings.map((h) => (
-            <li>
-              <a href={`#${h.slug}`}>{h.text}</a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    )}
+    <div class={hasSidebar ? 'ma-reading-grid' : undefined}>
+      <div class="ma-prose">
+        <Content />
+      </div>
 
-    <div class="ma-prose">
-      <Content />
+      {hasSidebar && (
+        <aside class="ma-sidebar" aria-label="Informações complementares">
+          {tocHeadings.length >= 3 && (
+            <nav class="ma-toc" aria-label="Índice do artigo">
+              <strong>Neste artigo</strong>
+              <ul>
+                {tocHeadings.map((h) => (
+                  <li data-depth={String(h.depth)}>
+                    <a href={`#${h.slug}`}>{h.text}</a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
+
+          {relatedWorks.length > 0 && (
+            <section class="ma-meta-box" aria-label="Obras citadas">
+              <dl>
+                <div>
+                  <dt>Obras citadas</dt>
+                  <dd>
+                    <ul style="margin: 0.25rem 0 0; padding-left: 1rem;">
+                      {relatedWorks.map((w) => (
+                        <li>
+                          <a href={ROUTES.work(w.slug)}>{w.title}</a>
+                        </li>
+                      ))}
+                    </ul>
+                  </dd>
+                </div>
+              </dl>
+            </section>
+          )}
+        </aside>
+      )}
     </div>
-
-    {relatedWorks.length > 0 && (
-      <section style="margin-top: 2.5rem;">
-        <h2>Obras citadas</h2>
-        <ul>
-          {relatedWorks.map((w) => (
-            <li>
-              <a href={ROUTES.work(w.slug)}>{w.title}</a>
-            </li>
-          ))}
-        </ul>
-      </section>
-    )}
   </article>
 </BaseLayout>
