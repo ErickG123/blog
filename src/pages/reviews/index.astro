@@ -2,8 +2,11 @@
 import BaseLayout from '@shared/layouts/BaseLayout.astro';
 import TagChip from '@shared/ui/TagChip.astro';
 import EmptyState from '@shared/ui/EmptyState.astro';
+import ListControls from '@shared/ui/ListControls.astro';
 import { formatDatePtBr, ROUTES } from '@shared/domain/rules';
 import { formatSpoilerLabel } from '@shared/utils/editorial';
+import { formatRatingPtBr, formatReviewScope } from '@shared/utils/i18n';
+import { PAGINATION_LIMITS } from '@shared/config/pagination';
 import { getPublicReviews } from '@features/content/content.selectors';
 
 const reviews = await getPublicReviews();
@@ -16,29 +19,53 @@ const reviews = await getPublicReviews();
   <section class="ma-hero">
     <h1>Reviews</h1>
     <p>
-      Críticas autorais com indicação clara de escopo, nível de spoiler e nota editorial opcional.
+      Críticas autorais com indicação clara de escopo, nível de spoiler e avaliação editorial
+      opcional.
     </p>
   </section>
 
   {reviews.length > 0 ? (
-    <ul class="ma-entry-list">
-      {reviews.map((review) => (
-        <li class="ma-entry">
-          <div class="ma-entry__meta">
-            <time datetime={review.publishedAt}>{formatDatePtBr(review.publishedAt)}</time>
-            <TagChip label={review.scopeLabel ?? review.scope} />
-            <TagChip label={formatSpoilerLabel(review.spoilerLevel)} variant="secondary" />
-            {review.rating !== undefined && (
-              <span class="ma-rating">{review.rating.toFixed(1)} / 5</span>
-            )}
-          </div>
-          <h2 class="ma-entry__title">
-            <a href={ROUTES.review(review.slug)}>{review.title}</a>
-          </h2>
-          <p class="ma-entry__summary">{review.summary}</p>
-        </li>
-      ))}
-    </ul>
+    <>
+      <ListControls
+        containerSelector="[data-reviews-list]"
+        itemSelector="[data-list-item]"
+        pageSize={PAGINATION_LIMITS.reviews}
+        nounPlural="reviews"
+        filterParam="escopo"
+        allowRatingSort
+        filterOptions={[
+          { value: 'all', label: `Todas (${reviews.length})` },
+          { value: 'volume', label: 'Volumes' },
+          { value: 'work', label: 'Obras completas' },
+          { value: 'season', label: 'Temporadas' },
+        ]}
+      />
+      <ul class="ma-entry-list" data-reviews-list>
+        {reviews.map((review) => (
+          <li
+            class="ma-entry"
+            data-list-item
+            data-filter-key={review.scope}
+            data-sort-title={review.title}
+            data-sort-date={String(Date.parse(review.publishedAt))}
+            data-sort-rating={String(review.rating ?? -1)}
+          >
+            <div class="ma-entry__meta">
+              <time datetime={review.publishedAt}>{formatDatePtBr(review.publishedAt)}</time>
+              <TagChip label={review.scopeLabel ?? formatReviewScope(review.scope)} />
+              <TagChip label={formatSpoilerLabel(review.spoilerLevel)} variant="secondary" />
+              {review.rating !== undefined && (
+                <span class="ma-rating">{formatRatingPtBr(review.rating)}</span>
+              )}
+            </div>
+            <h2 class="ma-entry__title">
+              <a href={ROUTES.review(review.slug)}>{review.title}</a>
+            </h2>
+            <p class="ma-entry__summary">{review.summary}</p>
+          </li>
+        ))}
+      </ul>
+    </>
   ) : (
     <EmptyState
       title="Nenhuma review publicada ainda"

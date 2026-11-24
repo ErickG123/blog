@@ -86,8 +86,8 @@ const structuredData = jsonLd ?? {
     {isDemo && (
       <div class="ma-demo-banner" role="note">
         <div class="ma-container">
-          <strong>Modo demonstração</strong> — exibindo fixtures sintéticas isoladas do build
-          editorial real (`noindex`).
+          <strong>Modo demonstração</strong> — exibindo conteúdo demonstrativo isolado do build
+          editorial real (<code>noindex</code>).
         </div>
       </div>
     )}
@@ -129,17 +129,70 @@ const structuredData = jsonLd ?? {
     </main>
 
     <footer class="ma-footer">
-      <div class="ma-container ma-footer__inner">
-        <p style="margin: 0;">
-          <strong>{PROJECT_IDENTITY.name}</strong> — Blog editorial independente em pt-BR.
-        </p>
-        <nav class="ma-footer__links" aria-label="Links institucionais">
-          <a href={ROUTES.about}>Sobre</a>
-          <a href={ROUTES.editorialPolicy}>Política Editorial</a>
-          <a href={ROUTES.contact}>Contato</a>
-          <a href={ROUTES.tags}>Tags</a>
-          <a href="/rss.xml">RSS</a>
-        </nav>
+      <div class="ma-container">
+        <div class="ma-footer__grid">
+          <div class="ma-footer__col">
+            <a class="ma-brand" href={ROUTES.home} style="margin-bottom: 0.5rem;">
+              <span>Mangá</span>
+              <span class="ma-brand__accent">Atlas</span>
+            </a>
+            <p style="margin: 0; max-width: 28ch;">{PROJECT_IDENTITY.tagline}</p>
+          </div>
+          <div class="ma-footer__col">
+            <h2>Editorial</h2>
+            <ul>
+              <li>
+                <a href={ROUTES.reviews}>Reviews</a>
+              </li>
+              <li>
+                <a href={ROUTES.articles}>Artigos e análises</a>
+              </li>
+              <li>
+                <a href={ROUTES.guides}>Guias e recomendações</a>
+              </li>
+              <li>
+                <a href={ROUTES.collecting}>Colecionismo</a>
+              </li>
+            </ul>
+          </div>
+          <div class="ma-footer__col">
+            <h2>Catálogo</h2>
+            <ul>
+              <li>
+                <a href={ROUTES.works}>Biblioteca de obras</a>
+              </li>
+              <li>
+                <a href={ROUTES.tags}>Tags e temas</a>
+              </li>
+              <li>
+                <a href={ROUTES.search}>Pesquisa global</a>
+              </li>
+            </ul>
+          </div>
+          <div class="ma-footer__col">
+            <h2>Institucional</h2>
+            <ul>
+              <li>
+                <a href={ROUTES.about}>Sobre</a>
+              </li>
+              <li>
+                <a href={ROUTES.editorialPolicy}>Política Editorial</a>
+              </li>
+              <li>
+                <a href={ROUTES.contact}>Contato</a>
+              </li>
+              <li>
+                <a href="/rss.xml">Feed RSS</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="ma-footer__bottom">
+          <span>
+            © {new Date().getFullYear()} {PROJECT_IDENTITY.name}. Projeto editorial independente.
+          </span>
+          <span>Idioma: pt-BR · Saída estática</span>
+        </div>
       </div>
     </footer>
   </body>

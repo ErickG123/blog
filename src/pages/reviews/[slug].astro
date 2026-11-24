@@ -5,7 +5,8 @@ import TagChip from '@shared/ui/TagChip.astro';
 import MediaFigure from '@shared/ui/MediaFigure.astro';
 import CopyLinkButton from '@shared/ui/CopyLinkButton.astro';
 import { formatDatePtBr, ROUTES } from '@shared/domain/rules';
-import { formatSpoilerLabel } from '@shared/utils/editorial';
+import { estimateReadingMinutes, formatSpoilerLabel } from '@shared/utils/editorial';
+import { formatRatingPtBr, formatReviewScope, formatWorkKind } from '@shared/utils/i18n';
 import { getPublicReviews, getPublicWorks } from '@features/content/content.selectors';
 
 export async function getStaticPaths() {
@@ -21,6 +22,7 @@ const { Content, headings } = await render(review.entry);
 const [works, allReviews] = await Promise.all([getPublicWorks(), getPublicReviews()]);
 const work = works.find((w) => w.id === review.workId);
 const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+const readingMin = estimateReadingMinutes(review.entry.body ?? '');
 const relatedReviews = allReviews
   .filter(
     (r) =>
@@ -32,12 +34,21 @@ const relatedReviews = allReviews
 
 <BaseLayout title={review.title} description={review.summary} ogType="article">
   <article data-pagefind-body>
+    <nav class="ma-breadcrumb" aria-label="Caminho de navegação">
+      <a href={ROUTES.home}>Início</a>
+      <span aria-hidden="true">/</span>
+      <a href={ROUTES.reviews}>Reviews</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">{review.title}</span>
+    </nav>
+
     <header class="ma-hero">
       <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
-        <TagChip label={review.scopeLabel ?? review.scope} variant="accent" />
+        <TagChip label={review.scopeLabel ?? formatReviewScope(review.scope)} variant="accent" />
         <TagChip label={formatSpoilerLabel(review.spoilerLevel)} variant="secondary" />
+        <TagChip label={`${readingMin} min de leitura`} />
         {review.rating !== undefined && (
-          <span class="ma-rating">{review.rating.toFixed(1)} / 5</span>
+          <span class="ma-rating">{formatRatingPtBr(review.rating)}</span>
         )}
       </div>
       <h1>{review.title}</h1>
@@ -56,46 +67,75 @@ const relatedReviews = allReviews
       </div>
     </header>
 
-    {review.cover && <MediaFigure asset={review.cover} eager />}
+    <div class="ma-reading-grid">
+      <div>
+        {review.cover && <MediaFigure asset={review.cover} eager />}
 
-    {review.verdict && (
-      <aside class="ma-verdict" aria-label="Veredito editorial">
-        <strong>Veredito</strong>
-        <p>{review.verdict}</p>
+        {review.verdict && (
+          <aside class="ma-verdict" aria-label="Veredito editorial">
+            <strong>Veredito</strong>
+            <p>{review.verdict}</p>
+          </aside>
+        )}
+
+        <div class="ma-prose">
+          <Content />
+        </div>
+
+        {relatedReviews.length > 0 && (
+          <section style="margin-top: 3rem;">
+            <h2>Outras reviews relacionadas</h2>
+            <ul class="ma-entry-list">
+              {relatedReviews.map((rel) => (
+                <li class="ma-entry">
+                  <h3 class="ma-entry__title">
+                    <a href={ROUTES.review(rel.slug)}>{rel.title}</a>
+                  </h3>
+                  <p class="ma-entry__summary">{rel.summary}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+
+      <aside class="ma-sidebar" aria-label="Informações complementares">
+        {tocHeadings.length >= 3 && (
+          <nav class="ma-toc" aria-label="Índice da review">
+            <strong>Neste texto</strong>
+            <ul>
+              {tocHeadings.map((h) => (
+                <li data-depth={String(h.depth)}>
+                  <a href={`#${h.slug}`}>{h.text}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+
+        {work && (
+          <section class="ma-meta-box" aria-label="Obra avaliada">
+            <dl>
+              <div>
+                <dt>Obra</dt>
+                <dd>
+                  <a href={ROUTES.work(work.slug)}>{work.title}</a>
+                </dd>
+              </div>
+              <div>
+                <dt>Tipo</dt>
+                <dd>{formatWorkKind(work.kind)}</dd>
+              </div>
+              {review.rating !== undefined && (
+                <div>
+                  <dt>Avaliação</dt>
+                  <dd>{formatRatingPtBr(review.rating)}</dd>
+                </div>
+              )}
+            </dl>
+          </section>
+        )}
       </aside>
-    )}
-
-    {tocHeadings.length >= 3 && (
-      <nav class="ma-toc" aria-label="Índice do texto">
-        <strong>Neste texto</strong>
-        <ul>
-          {tocHeadings.map((h) => (
-            <li>
-              <a href={`#${h.slug}`}>{h.text}</a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    )}
-
-    <div class="ma-prose">
-      <Content />
     </div>
-
-    {relatedReviews.length > 0 && (
-      <section style="margin-top: 3rem;">
-        <h2>Outras reviews relacionadas</h2>
-        <ul class="ma-entry-list">
-          {relatedReviews.map((rel) => (
-            <li class="ma-entry">
-              <h3 class="ma-entry__title">
-                <a href={ROUTES.review(rel.slug)}>{rel.title}</a>
-              </h3>
-              <p class="ma-entry__summary">{rel.summary}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
-    )}
   </article>
 </BaseLayout>

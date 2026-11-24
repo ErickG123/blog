@@ -1,7 +1,9 @@
 ---
 import BaseLayout from '@shared/layouts/BaseLayout.astro';
 import EmptyState from '@shared/ui/EmptyState.astro';
+import ListControls from '@shared/ui/ListControls.astro';
 import { formatDatePtBr, ROUTES } from '@shared/domain/rules';
+import { PAGINATION_LIMITS } from '@shared/config/pagination';
 import { getPublicCollectingPosts } from '@features/content/content.selectors';
 
 const posts = await getPublicCollectingPosts();
@@ -19,19 +21,32 @@ const posts = await getPublicCollectingPosts();
   </section>
 
   {posts.length > 0 ? (
-    <ul class="ma-entry-list">
-      {posts.map((post) => (
-        <li class="ma-entry">
-          <div class="ma-entry__meta">
-            <time datetime={post.publishedAt}>{formatDatePtBr(post.publishedAt)}</time>
-          </div>
-          <h2 class="ma-entry__title">
-            <a href={ROUTES.collectingPost(post.slug)}>{post.title}</a>
-          </h2>
-          <p class="ma-entry__summary">{post.summary}</p>
-        </li>
-      ))}
-    </ul>
+    <>
+      <ListControls
+        containerSelector="[data-collecting-list]"
+        itemSelector="[data-list-item]"
+        pageSize={PAGINATION_LIMITS.collecting}
+        nounPlural="publicações"
+      />
+      <ul class="ma-entry-list" data-collecting-list>
+        {posts.map((post) => (
+          <li
+            class="ma-entry"
+            data-list-item
+            data-sort-title={post.title}
+            data-sort-date={String(Date.parse(post.publishedAt))}
+          >
+            <div class="ma-entry__meta">
+              <time datetime={post.publishedAt}>{formatDatePtBr(post.publishedAt)}</time>
+            </div>
+            <h2 class="ma-entry__title">
+              <a href={ROUTES.collectingPost(post.slug)}>{post.title}</a>
+            </h2>
+            <p class="ma-entry__summary">{post.summary}</p>
+          </li>
+        ))}
+      </ul>
+    </>
   ) : (
     <EmptyState
       title="Nenhuma publicação de colecionismo ainda"

@@ -1,7 +1,11 @@
-// Layout global — Mangá Atlas (Fases 04 e 05)
+// Layout global v2 — Header sticky, menu mobile e footer estruturado (Fase 40)
 .ma-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
   border-bottom: 1px solid var(--ma-border);
   background: var(--ma-surface);
+  box-shadow: var(--ma-shadow-sm);
 }
 
 .ma-header__inner {
@@ -10,16 +14,17 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--ma-space-3);
-  padding-block: var(--ma-space-4);
+  min-height: var(--ma-header-height);
+  padding-block: var(--ma-space-2);
 }
 
 .ma-brand {
   display: inline-flex;
   align-items: baseline;
-  gap: 0.35rem;
+  gap: 0.3rem;
   font-size: var(--ma-text-xl);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   color: var(--ma-text);
   text-decoration: none;
 
@@ -36,17 +41,24 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--ma-space-3);
+  gap: var(--ma-space-2);
 
   a {
     color: var(--ma-text-muted);
     font-size: var(--ma-text-sm);
     font-weight: 600;
     text-decoration: none;
-    padding: 0.25rem 0.4rem;
+    padding: 0.35rem 0.65rem;
     border-radius: var(--ma-radius-sm);
+    transition:
+      background-color var(--ma-transition),
+      color var(--ma-transition);
 
-    &:hover,
+    &:hover {
+      color: var(--ma-text);
+      background: var(--ma-surface-muted);
+    }
+
     &[aria-current='page'] {
       color: var(--ma-accent);
       background: var(--ma-accent-soft);
@@ -61,32 +73,51 @@
 
 .ma-footer {
   border-top: 1px solid var(--ma-border);
-  background: var(--ma-surface);
-  padding-block: var(--ma-space-6);
+  background: var(--ma-bg-subtle);
+  padding-block: var(--ma-space-8) var(--ma-space-6);
   font-size: var(--ma-text-sm);
   color: var(--ma-text-muted);
 }
 
-.ma-footer__inner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ma-space-4);
+.ma-footer__grid {
+  display: grid;
+  gap: var(--ma-space-6);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  padding-bottom: var(--ma-space-6);
+  border-bottom: 1px solid var(--ma-border);
 }
 
-.ma-footer__links {
+.ma-footer__col h2 {
+  margin: 0 0 var(--ma-space-3);
+  font-size: var(--ma-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ma-text);
+}
+
+.ma-footer__col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.ma-footer__col a {
+  color: var(--ma-text-muted);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--ma-accent);
+    text-decoration: underline;
+  }
+}
+
+.ma-footer__bottom {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--ma-space-4);
-
-  a {
-    color: var(--ma-text-muted);
-    text-decoration: none;
-
-    &:hover {
-      color: var(--ma-accent);
-      text-decoration: underline;
-    }
-  }
+  justify-content: space-between;
+  gap: var(--ma-space-3);
+  padding-top: var(--ma-space-4);
+  font-size: var(--ma-text-xs);
 }

@@ -1,0 +1,249 @@
+---
+interface FilterOption {
+  readonly value: string;
+  readonly label: string;
+}
+
+interface Props {
+  containerSelector: string;
+  itemSelector: string;
+  pageSize: number;
+  nounPlural?: string;
+  filterParam?: string;
+  filterOptions?: readonly FilterOption[];
+  allowRatingSort?: boolean;
+}
+
+const {
+  containerSelector,
+  itemSelector,
+  pageSize,
+  nounPlural = 'publicações',
+  filterParam = 'filtro',
+  filterOptions = [],
+  allowRatingSort = false,
+} = Astro.props;
+---
+
+<div
+  class="ma-controls-bar"
+  data-list-controls
+  data-container-selector={containerSelector}
+  data-item-selector={itemSelector}
+  data-page-size={String(pageSize)}
+  data-noun-plural={nounPlural}
+  data-filter-param={filterParam}
+>
+  <div class="ma-controls-bar__group" role="group" aria-label="Filtros">
+    {filterOptions.length > 0 &&
+      filterOptions.map((opt, idx) => (
+        <button
+          type="button"
+          class="ma-btn"
+          data-filter-value={opt.value}
+          aria-pressed={idx === 0 ? 'true' : 'false'}
+        >
+          {opt.label}
+        </button>
+      ))}
+  </div>
+
+  <div class="ma-controls-bar__group">
+    <label for="ma-sort-select" style="font-size: var(--ma-text-xs); color: var(--ma-text-muted);">
+      Ordenar:
+    </label>
+    <select id="ma-sort-select" data-sort-select>
+      <option value="recent">Mais recentes</option>
+      <option value="oldest">Mais antigos</option>
+      <option value="title-asc">Título A–Z</option>
+      <option value="title-desc">Título Z–A</option>
+      {allowRatingSort && <option value="rating-desc">Maior avaliação</option>}
+    </select>
+  </div>
+</div>
+
+<p
+  data-pagination-notice
+  role="status"
+  aria-live="polite"
+  style="margin: 0 0 1rem; font-size: var(--ma-text-sm); color: var(--ma-text-muted);"
+></p>
+
+<nav class="ma-pagination" aria-label="Paginação" data-pagination-nav hidden>
+  <span class="ma-pagination__summary" data-pagination-summary></span>
+  <div class="ma-pagination__pages" data-pagination-pages></div>
+</nav>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-list-controls]');
+    if (!root) return;
+
+    const containerSel = root.getAttribute('data-container-selector') || '';
+    const itemSel = root.getAttribute('data-item-selector') || '';
+    const pageSize = Math.max(1, Number(root.getAttribute('data-page-size') || '12'));
+    const nounPlural = root.getAttribute('data-noun-plural') || 'publicações';
+    const filterParam = root.getAttribute('data-filter-param') || 'filtro';
+
+    const container = document.querySelector(containerSel);
+    if (!container) return;
+
+    const allItems = Array.from(container.querySelectorAll(itemSel));
+    const filterButtons = Array.from(root.querySelectorAll('[data-filter-value]'));
+    const sortSelect = root.querySelector('[data-sort-select]');
+    const noticeEl = document.querySelector('[data-pagination-notice]');
+    const navEl = document.querySelector('[data-pagination-nav]');
+    const summaryEl = document.querySelector('[data-pagination-summary]');
+    const pagesEl = document.querySelector('[data-pagination-pages]');
+
+    let activeFilter = 'all';
+    let activeSort = 'recent';
+    let currentPage = 1;
+
+    function readUrlState() {
+      const params = new URLSearchParams(window.location.search);
+      const f = params.get(filterParam) || 'all';
+      const validFilters = filterButtons.map((b) => b.getAttribute('data-filter-value'));
+      activeFilter = validFilters.includes(f) ? f : 'all';
+
+      const s = params.get('ordem') || 'recent';
+      activeSort = ['recent', 'oldest', 'title-asc', 'title-desc', 'rating-desc'].includes(s)
+        ? s
+        : 'recent';
+
+      const p = Number(params.get('pagina') || '1');
+      currentPage = Number.isInteger(p) && p >= 1 ? p : 1;
+    }
+
+    function syncUrl() {
+      const url = new URL(window.location.href);
+      if (activeFilter === 'all') url.searchParams.delete(filterParam);
+      else url.searchParams.set(filterParam, activeFilter);
+      if (activeSort === 'recent') url.searchParams.delete('ordem');
+      else url.searchParams.set('ordem', activeSort);
+      if (currentPage <= 1) url.searchParams.delete('pagina');
+      else url.searchParams.set('pagina', String(currentPage));
+      window.history.replaceState({}, '', url);
+    }
+
+    function render() {
+      const filtered = allItems.filter((el) => {
+        if (activeFilter === 'all') return true;
+        return el.getAttribute('data-filter-key') === activeFilter;
+      });
+
+      filtered.sort((a, b) => {
+        const titleA = a.getAttribute('data-sort-title') || '';
+        const titleB = b.getAttribute('data-sort-title') || '';
+        const dateA = Number(a.getAttribute('data-sort-date') || '0');
+        const dateB = Number(b.getAttribute('data-sort-date') || '0');
+        const ratingA = Number(a.getAttribute('data-sort-rating') || '-1');
+        const ratingB = Number(b.getAttribute('data-sort-rating') || '-1');
+        let diff = 0;
+        if (activeSort === 'recent') diff = dateB - dateA;
+        else if (activeSort === 'oldest') diff = dateA - dateB;
+        else if (activeSort === 'title-asc') diff = titleA.localeCompare(titleB, 'pt-BR');
+        else if (activeSort === 'title-desc') diff = titleB.localeCompare(titleA, 'pt-BR');
+        else if (activeSort === 'rating-desc') diff = ratingB - ratingA;
+        return diff !== 0 ? diff : titleA.localeCompare(titleB, 'pt-BR');
+      });
+
+      const totalItems = filtered.length;
+      const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+      const outOfRange = currentPage > totalPages;
+      if (outOfRange) currentPage = 1;
+
+      const start = (currentPage - 1) * pageSize;
+      const visibleSet = new Set(filtered.slice(start, start + pageSize));
+
+      // Reordena DOM conforme ordenação ativa e aplica visibilidade
+      for (const el of filtered) {
+        container.appendChild(el);
+      }
+      for (const el of allItems) {
+        el.toggleAttribute('hidden', !visibleSet.has(el));
+      }
+
+      filterButtons.forEach((btn) => {
+        btn.setAttribute(
+          'aria-pressed',
+          String(btn.getAttribute('data-filter-value') === activeFilter),
+        );
+      });
+      if (sortSelect) sortSelect.value = activeSort;
+
+      if (noticeEl) {
+        if (totalItems === 0) {
+          noticeEl.textContent = 'Nenhum item corresponde aos filtros selecionados.';
+        } else {
+          const end = Math.min(totalItems, start + pageSize);
+          noticeEl.textContent = `Mostrando ${start + 1}–${end} de ${totalItems} ${nounPlural}`;
+        }
+      }
+
+      if (navEl && summaryEl && pagesEl) {
+        if (totalPages <= 1) {
+          navEl.hidden = true;
+        } else {
+          navEl.hidden = false;
+          const end = Math.min(totalItems, start + pageSize);
+          summaryEl.textContent = `Mostrando ${start + 1}–${end} de ${totalItems} ${nounPlural}`;
+          pagesEl.innerHTML = '';
+
+          const addBtn = (label, targetPage, disabled, isCurrent = false) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'ma-btn';
+            btn.textContent = label;
+            btn.disabled = disabled;
+            if (isCurrent) btn.setAttribute('aria-current', 'page');
+            btn.addEventListener('click', () => {
+              currentPage = targetPage;
+              syncUrl();
+              render();
+              container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+            pagesEl.appendChild(btn);
+          };
+
+          addBtn('Anterior', currentPage - 1, currentPage <= 1);
+          for (let p = 1; p <= totalPages; p++) {
+            if (totalPages <= 7 || p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1) {
+              addBtn(String(p), p, false, p === currentPage);
+            } else if (p === currentPage - 2 || p === currentPage + 2) {
+              const span = document.createElement('span');
+              span.textContent = '…';
+              span.style.padding = '0 0.25rem';
+              pagesEl.appendChild(span);
+            }
+          }
+          addBtn('Próxima', currentPage + 1, currentPage >= totalPages);
+        }
+      }
+    }
+
+    filterButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        activeFilter = btn.getAttribute('data-filter-value') || 'all';
+        currentPage = 1;
+        syncUrl();
+        render();
+      });
+    });
+
+    sortSelect?.addEventListener('change', () => {
+      activeSort = sortSelect.value;
+      currentPage = 1;
+      syncUrl();
+      render();
+    });
+
+    window.addEventListener('popstate', () => {
+      readUrlState();
+      render();
+    });
+
+    readUrlState();
+    render();
+  })();
+</script>

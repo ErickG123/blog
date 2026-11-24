@@ -1,26 +1,30 @@
-// Tokens semânticos — Mangá Atlas (Fase 04)
+// Tokens semânticos v2 — Profundidade visual e contraste WCAG 2.2 AA (Fase 40)
 :root {
   color-scheme: light;
 
-  // Paleta de marca (claro com contraste WCAG 2.2 AA)
-  --ma-bg: #f7f7f8;
+  // Superfícies em níveis distintos (tema claro)
+  --ma-bg: #f3f3f6;
+  --ma-bg-subtle: #eaeaf0;
   --ma-surface: #ffffff;
-  --ma-surface-muted: #efeff2;
-  --ma-border: #d8d8e0;
-  --ma-border-strong: #b6b6c2;
+  --ma-surface-elevated: #ffffff;
+  --ma-surface-muted: #ececf2;
+  --ma-surface-interactive: #e4e4ec;
 
-  --ma-text: #151518;
-  --ma-text-muted: #4b4b57;
-  --ma-text-inverse: #f7f7f8;
+  --ma-border: #d8d8e2;
+  --ma-border-strong: #b4b4c4;
 
-  // Vermelho editorial (escurecido no tema claro para >= 4.5:1 sobre branco/claro)
+  // Texto
+  --ma-text: #141418;
+  --ma-text-muted: #4c4c5c;
+  --ma-text-inverse: #f7f7f9;
+
+  // Identidade Mangá Atlas (vermelho editorial + roxo discreto)
   --ma-accent: #c82333;
-  --ma-accent-hover: #a71b29;
-  --ma-accent-soft: #fdecee;
+  --ma-accent-hover: #a41a28;
+  --ma-accent-soft: #fcecef;
 
-  // Roxo discreto secundário
   --ma-secondary: #6d3fd6;
-  --ma-secondary-soft: #f2edfe;
+  --ma-secondary-soft: #f0ebfe;
 
   // Foco e estados
   --ma-focus: #6d3fd6;
@@ -28,7 +32,11 @@
   --ma-warning: #9a5b00;
   --ma-success: #166534;
 
-  // Tipografia (stack de sistema, zero fonte remota)
+  // Sombras discretas
+  --ma-shadow-sm: 0 1px 2px rgba(20, 20, 24, 0.06);
+  --ma-shadow-md: 0 6px 18px rgba(20, 20, 24, 0.08);
+
+  // Tipografia (stack de sistema)
   --ma-font-sans:
     system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
     sans-serif;
@@ -43,9 +51,12 @@
   --ma-text-2xl: 1.75rem;
   --ma-text-3xl: 2.25rem;
 
-  // Layout e ritmo
+  // Larguras diferenciadas
   --ma-measure: 68ch;
-  --ma-container: 72rem;
+  --ma-container: 80rem;
+  --ma-header-height: 4rem;
+
+  // Ritmo
   --ma-space-1: 0.25rem;
   --ma-space-2: 0.5rem;
   --ma-space-3: 0.75rem;
@@ -55,8 +66,9 @@
   --ma-space-8: 3rem;
   --ma-space-10: 4rem;
 
-  --ma-radius-sm: 4px;
-  --ma-radius-md: 8px;
+  --ma-radius-sm: 6px;
+  --ma-radius-md: 10px;
+  --ma-radius-lg: 14px;
   --ma-radius-pill: 999px;
 
   --ma-transition: 160ms ease;
@@ -65,27 +77,35 @@
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  --ma-bg: #151518;
-  --ma-surface: #1d1d22;
-  --ma-surface-muted: #26262e;
-  --ma-border: #32323d;
-  --ma-border-strong: #4a4a59;
+  // Profundidade real no tema escuro (referência Fase 40)
+  --ma-bg: #121216;
+  --ma-bg-subtle: #17171d;
+  --ma-surface: #1c1c23;
+  --ma-surface-elevated: #25252e;
+  --ma-surface-muted: #22222b;
+  --ma-surface-interactive: #2c2c38;
 
-  --ma-text: #f3f3f6;
-  --ma-text-muted: #b6b6c4;
-  --ma-text-inverse: #151518;
+  --ma-border: #34343f;
+  --ma-border-strong: #4a4a5b;
 
-  --ma-accent: #f0525e;
-  --ma-accent-hover: #ff6e79;
-  --ma-accent-soft: #311a1e;
+  --ma-text: #f3f3f7;
+  --ma-text-muted: #b2b2c2;
+  --ma-text-inverse: #121216;
+
+  --ma-accent: #e53946;
+  --ma-accent-hover: #f35b67;
+  --ma-accent-soft: #2e191e;
 
   --ma-secondary: #a78bfa;
-  --ma-secondary-soft: #241d38;
+  --ma-secondary-soft: #231d36;
 
   --ma-focus: #a78bfa;
   --ma-danger: #f87171;
   --ma-warning: #fbbf24;
   --ma-success: #4ade80;
+
+  --ma-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --ma-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
 }
 
 @media (prefers-reduced-motion: reduce) {

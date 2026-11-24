@@ -2,7 +2,10 @@
 import BaseLayout from '@shared/layouts/BaseLayout.astro';
 import TagChip from '@shared/ui/TagChip.astro';
 import EmptyState from '@shared/ui/EmptyState.astro';
+import ListControls from '@shared/ui/ListControls.astro';
 import { formatDatePtBr, ROUTES } from '@shared/domain/rules';
+import { formatArticleCategory } from '@shared/utils/i18n';
+import { PAGINATION_LIMITS } from '@shared/config/pagination';
 import { getPublicArticles } from '@features/content/content.selectors';
 
 const articles = await getPublicArticles();
@@ -15,20 +18,42 @@ const articles = await getPublicArticles();
   </section>
 
   {articles.length > 0 ? (
-    <ul class="ma-entry-list">
-      {articles.map((article) => (
-        <li class="ma-entry">
-          <div class="ma-entry__meta">
-            <time datetime={article.publishedAt}>{formatDatePtBr(article.publishedAt)}</time>
-            <TagChip label={article.category} variant="accent" />
-          </div>
-          <h2 class="ma-entry__title">
-            <a href={ROUTES.article(article.slug)}>{article.title}</a>
-          </h2>
-          <p class="ma-entry__summary">{article.summary}</p>
-        </li>
-      ))}
-    </ul>
+    <>
+      <ListControls
+        containerSelector="[data-articles-list]"
+        itemSelector="[data-list-item]"
+        pageSize={PAGINATION_LIMITS.articles}
+        nounPlural="artigos"
+        filterParam="categoria"
+        filterOptions={[
+          { value: 'all', label: `Todos (${articles.length})` },
+          { value: 'analise', label: 'Análise' },
+          { value: 'ensaio', label: 'Ensaio' },
+          { value: 'industria', label: 'Indústria' },
+          { value: 'opiniao', label: 'Opinião' },
+        ]}
+      />
+      <ul class="ma-entry-list" data-articles-list>
+        {articles.map((article) => (
+          <li
+            class="ma-entry"
+            data-list-item
+            data-filter-key={article.category}
+            data-sort-title={article.title}
+            data-sort-date={String(Date.parse(article.publishedAt))}
+          >
+            <div class="ma-entry__meta">
+              <time datetime={article.publishedAt}>{formatDatePtBr(article.publishedAt)}</time>
+              <TagChip label={formatArticleCategory(article.category)} variant="accent" />
+            </div>
+            <h2 class="ma-entry__title">
+              <a href={ROUTES.article(article.slug)}>{article.title}</a>
+            </h2>
+            <p class="ma-entry__summary">{article.summary}</p>
+          </li>
+        ))}
+      </ul>
+    </>
   ) : (
     <EmptyState
       title="Nenhum artigo publicado ainda"
