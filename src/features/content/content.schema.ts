@@ -11,6 +11,8 @@ export const isoDateSchema = z
   .string()
   .regex(isoDateRegex, 'Data deve estar em formato ISO-8601 (YYYY-MM-DD ou timestamp ISO).');
 
+export const mediaRightsStatusSchema = z.enum(['own', 'authorized', 'pending', 'demo']);
+
 export const imageAssetSchema = z.object({
   src: z.string().min(1),
   alt: z.string().min(1),
@@ -18,6 +20,9 @@ export const imageAssetSchema = z.object({
   height: z.number().int().positive(),
   credit: z.string().min(1),
   license: z.string().min(1).optional(),
+  sourceUrl: z.string().url().optional(),
+  rightsStatus: mediaRightsStatusSchema.optional(),
+  decorative: z.boolean().optional(),
 });
 
 export const officialLinkSchema = z.object({
@@ -58,6 +63,7 @@ export const workSchema = z.object({
   studioIds: z.array(z.string().min(1)).optional(),
   genreIds: z.array(z.string().min(1)).default([]),
   officialLinks: z.array(officialLinkSchema).optional(),
+  status: z.enum(['draft', 'published']).optional(),
   isFixture: z.boolean().optional(),
 });
 
@@ -76,6 +82,7 @@ export const editionSchema = z.object({
   volumesCount: z.number().int().positive().optional(),
   notes: z.string().min(1).optional(),
   cover: imageAssetSchema.optional(),
+  status: z.enum(['draft', 'published']).optional(),
   isFixture: z.boolean().optional(),
 });
 
@@ -86,6 +93,7 @@ export const creatorSchema = z.object({
   originalName: z.string().min(1).optional(),
   bio: z.string().min(1).optional(),
   officialLinks: z.array(officialLinkSchema).optional(),
+  status: z.enum(['draft', 'published']).optional(),
   isFixture: z.boolean().optional(),
 });
 
@@ -96,6 +104,7 @@ export const publisherSchema = z.object({
   country: z.string().min(1).optional(),
   description: z.string().min(1).optional(),
   officialLinks: z.array(officialLinkSchema).optional(),
+  status: z.enum(['draft', 'published']).optional(),
   isFixture: z.boolean().optional(),
 });
 
@@ -106,6 +115,7 @@ export const studioSchema = z.object({
   country: z.string().min(1).optional(),
   description: z.string().min(1).optional(),
   officialLinks: z.array(officialLinkSchema).optional(),
+  status: z.enum(['draft', 'published']).optional(),
   isFixture: z.boolean().optional(),
 });
 

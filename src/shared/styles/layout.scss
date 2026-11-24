@@ -64,6 +64,12 @@
       background: var(--ma-accent-soft);
     }
   }
+
+  &__search {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
 }
 
 .ma-main {

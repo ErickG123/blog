@@ -19,6 +19,7 @@ jobs:
       - run: npm run format:check
       - run: npm run lint
       - run: npm run check
+      - run: npm run media:validate
       - run: npm run test
       - run: npm run build
       - name: Instalar Chromium Playwright

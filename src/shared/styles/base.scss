@@ -87,7 +87,7 @@ h4 {
   overflow-wrap: break-word;
 }
 
-.ma-prose a {
+.ma-prose a:not(.ma-btn):not(.ma-tag) {
   color: var(--ma-accent);
   text-decoration-color: currentColor;
 }

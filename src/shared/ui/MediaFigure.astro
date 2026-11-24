@@ -1,26 +1,65 @@
 ---
+import { Image } from 'astro:assets';
 import type { ImageAsset } from '@features/catalog/domain/catalog.model';
+import { MEDIA_VARIANT_CONFIG, type MediaVariant } from '@shared/media/media.config';
+import { getPlaceholderCover, resolveMediaSource } from '@shared/media/media.resolver';
 
 interface Props {
-  asset: ImageAsset;
+  asset?: ImageAsset;
   caption?: string;
   eager?: boolean;
+  variant?: MediaVariant;
+  showCaption?: boolean;
+  showPlaceholder?: boolean;
 }
 
-const { asset, caption, eager = false } = Astro.props;
+const {
+  asset,
+  caption,
+  eager = false,
+  variant = 'inline',
+  showCaption = true,
+  showPlaceholder = false,
+} = Astro.props;
+
+const variantCfg = MEDIA_VARIANT_CONFIG[variant];
+const resolved = asset
+  ? resolveMediaSource(asset.src)
+  : showPlaceholder
+    ? getPlaceholderCover()
+    : null;
+const isDecorative = asset?.decorative === true;
+const altText = isDecorative ? '' : (asset?.alt ?? 'Imagem editorial pendente');
 ---
 
-<figure class="ma-figure">
-  <img
-    src={asset.src}
-    alt={asset.alt}
-    width={asset.width}
-    height={asset.height}
-    loading={eager ? 'eager' : 'lazy'}
-    decoding="async"
-  />
-  <figcaption>
-    {caption ? `${caption} — ` : ''}Crédito: {asset.credit}
-    {asset.license ? ` (${asset.license})` : ''}
-  </figcaption>
-</figure>
+{resolved && (
+  <figure class={`ma-figure ma-figure--${variant}`}>
+    {resolved.kind === 'astro' ? (
+      <Image
+        src={resolved.metadata}
+        alt={altText}
+        widths={resolved.metadata.format === 'svg' ? undefined : [...variantCfg.widths]}
+        sizes={resolved.metadata.format === 'svg' ? undefined : variantCfg.sizes}
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+        style={`object-fit: ${variantCfg.fit};`}
+      />
+    ) : (
+      <img
+        src={resolved.src}
+        alt={altText}
+        width={asset?.width ?? 420}
+        height={asset?.height ?? 600}
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+        style={`object-fit: ${variantCfg.fit};`}
+      />
+    )}
+    {showCaption && asset && (
+      <figcaption>
+        {caption ? `${caption} — ` : ''}Crédito: {asset.credit}
+        {asset.license ? ` (${asset.license})` : ''}
+      </figcaption>
+    )}
+  </figure>
+)}

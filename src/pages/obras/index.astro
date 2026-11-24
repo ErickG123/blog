@@ -3,7 +3,7 @@ import BaseLayout from '@shared/layouts/BaseLayout.astro';
 import TagChip from '@shared/ui/TagChip.astro';
 import EmptyState from '@shared/ui/EmptyState.astro';
 import ListControls from '@shared/ui/ListControls.astro';
-import { ROUTES } from '@shared/domain/rules';
+import { resolveAssetUrl, ROUTES } from '@shared/domain/rules';
 import { formatWorkFormat, formatWorkKind } from '@shared/utils/i18n';
 import { PAGINATION_LIMITS } from '@shared/config/pagination';
 import { getPublicWorks } from '@features/content/content.selectors';
@@ -54,7 +54,7 @@ const works = await getPublicWorks();
             {work.cover && (
               <div class="ma-work-card__cover">
                 <img
-                  src={work.cover.src}
+                  src={resolveAssetUrl(work.cover.src)}
                   alt={work.cover.alt}
                   width={work.cover.width}
                   height={work.cover.height}

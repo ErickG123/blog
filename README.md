@@ -24,19 +24,29 @@ npx playwright install chromium
 
 ## Scripts disponíveis
 
-| Comando                | Descrição                                                             |
-| ---------------------- | --------------------------------------------------------------------- |
-| `npm run dev`          | Inicia o servidor de desenvolvimento Astro (`http://localhost:4321`). |
-| `npm run build`        | Gera o build estático em `dist/`.                                     |
-| `npm run preview`      | Serve localmente o build estático gerado em `dist/`.                  |
-| `npm run check`        | Executa `astro check` e `tsc --noEmit` (verificação de tipos).        |
-| `npm run lint`         | Executa ESLint em todo o projeto.                                     |
-| `npm run lint:fix`     | Executa ESLint corrigindo problemas automaticamente quando possível.  |
-| `npm run format`       | Formata os arquivos suportados com Prettier.                          |
-| `npm run format:check` | Verifica a formatação com Prettier sem alterar arquivos.              |
-| `npm run test`         | Executa os testes unitários com Vitest (`tests/unit/`).               |
-| `npm run test:watch`   | Executa o Vitest em modo watch.                                       |
-| `npm run test:e2e`     | Executa os testes E2E com Playwright (`tests/e2e/`).                  |
+| Comando                    | Descrição                                                                           |
+| -------------------------- | ----------------------------------------------------------------------------------- |
+| `npm run dev`              | Inicia o servidor de desenvolvimento Astro (`http://localhost:4321`).               |
+| `npm run dev:demo`         | Inicia o servidor de desenvolvimento com fixtures demonstrativas.                   |
+| `npm run build`            | Valida conteúdo, gera build estático (`dist/`), checa isolamento e indexa Pagefind. |
+| `npm run build:demo`       | Gera build demonstrativo isolado em `dist-demo/` (`noindex`).                       |
+| `npm run preview`          | Serve localmente o build estático gerado em `dist/`.                                |
+| `npm run preview:demo`     | Serve localmente o build demonstrativo em `dist-demo/`.                             |
+| `npm run content:validate` | Valida schemas e integridade referencial do conteúdo.                               |
+| `npm run content:new`      | CLI editorial para criar rascunhos válidos em Markdown/MDX.                         |
+| `npm run check`            | Executa `astro check` e `tsc --noEmit` (verificação de tipos).                      |
+| `npm run lint`             | Executa ESLint em todo o projeto.                                                   |
+| `npm run lint:fix`         | Executa ESLint corrigindo problemas automaticamente quando possível.                |
+| `npm run format`           | Formata os arquivos suportados com Prettier.                                        |
+| `npm run format:check`     | Verifica a formatação com Prettier sem alterar arquivos.                            |
+| `npm run test`             | Executa os testes unitários com Vitest (`tests/unit/`).                             |
+| `npm run test:watch`       | Executa o Vitest em modo watch.                                                     |
+| `npm run test:e2e`         | Executa os testes E2E com Playwright (`tests/e2e/`).                                |
+
+## Hospedagem e imagens
+
+- **Hospedagem inicial**: **GitHub Pages** via workflow [`.github/workflows/pages.yml`](.github/workflows/pages.yml), suportando publicação em subdiretório (`ASTRO_BASE_PATH=/blog/`) ou domínio raiz (`ASTRO_BASE_PATH=/`). Alternativas futuras (como Cloudflare Pages ou domínio próprio) permanecem compatíveis graças à geração 100% estática (`output: 'static'`).
+- **Armazenamento de imagens**: imagens editoriais e assets locais são versionados no próprio repositório e resolvidos respeitando o `base` configurado (`resolveAssetUrl` / `withBasePath`), sem dependência de serviços externos de upload ou storage nesta etapa.
 
 ## Política de commits e hooks
 

@@ -2,6 +2,8 @@ export type WorkKind = 'manga' | 'anime' | 'manhwa';
 export type WorkFormat = 'series' | 'oneshot' | 'movie' | 'ova';
 export type WorkPublicationStatus = 'ongoing' | 'completed' | 'hiatus' | 'cancelled' | 'unknown';
 
+export type MediaRightsStatus = 'own' | 'authorized' | 'pending' | 'demo';
+
 export interface ImageAsset {
   readonly src: string;
   readonly alt: string;
@@ -9,6 +11,9 @@ export interface ImageAsset {
   readonly height: number;
   readonly credit: string;
   readonly license?: string;
+  readonly sourceUrl?: string;
+  readonly rightsStatus?: MediaRightsStatus;
+  readonly decorative?: boolean;
 }
 
 export interface OfficialLink {

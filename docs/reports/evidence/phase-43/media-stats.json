@@ -1,0 +1,20 @@
+﻿{
+  "assetsCount": 1,
+  "assetsTotalBytes": 773,
+  "byCategory": {
+    "placeholders": {
+      "count": 1,
+      "bytes": 773
+    }
+  },
+  "largestFiles": [
+    {
+      "file": "src/assets/images/placeholders/cover-fallback.svg",
+      "bytes": 773
+    }
+  ],
+  "editorialBuildDist": {
+    "files": 107,
+    "totalBytes": 959896
+  }
+}

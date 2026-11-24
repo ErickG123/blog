@@ -67,3 +67,42 @@ Este é o checklist central de verificação do projeto. Mantenha os IDs estáve
 | `T34-01` | Responsividade 320/390/768/1024/1440px sem overflow                                                  | `tests/e2e/search-and-responsive.spec.ts`    | `[x]`  | Validado em Chromium + screenshots `phase-34/`    |
 | `T35-01` | CLI editorial (`--dry-run`, path traversal, sem sobrescrita)                                         | `tests/unit/cli-editorial.test.ts`           | `[x]`  | Testado em diretório temporário isolado           |
 | `T36-01` | Cobertura Vitest + suíte E2E completa                                                                | `npm run test:coverage` + `npm run test:e2e` | `[x]`  | Todos os testes unitários e E2E aprovados         |
+
+## Fase 42 — Refinamento da Home, Botões e Compatibilidade GitHub Pages
+
+| ID       | Verificação                                                                                   | Comando / Método                                          | Status | Evidência / Observação                                                                     |
+| -------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------ |
+| `T42-01` | Contraste WCAG 2.2 AA (>= 4.5:1) e alturas padronizadas (42px) nos botões da Home             | `tests/e2e/home-buttons-and-pages.spec.ts`                | `[x]`  | Primário `5.61:1` e secundários `>= 13.7:1` em claro/escuro + hover + focus-visible        |
+| `T42-02` | Navegação das ações principais, favicon e footer no final da viewport                         | `tests/e2e/home-buttons-and-pages.spec.ts`                | `[x]`  | `/sobre/`, `/politica-editorial/`, `/busca/`, `/favicon.svg` 200 e footer no rodapé        |
+| `T42-03` | Responsividade sem overflow horizontal em 320, 375, 390, 768, 1024, 1440 e 1920px             | `tests/e2e/home-buttons-and-pages.spec.ts`                | `[x]`  | Zero overflow em todas as 7 larguras                                                       |
+| `T42-04` | Resolução de base path e assets locais (`withBasePath`, `resolveAssetUrl`)                    | `tests/unit/domain-rules.test.ts`                         | `[x]`  | Unit tests aprovados                                                                       |
+| `T42-05` | Build real para GitHub Pages com `ASTRO_BASE_PATH=/blog/` e Pagefind + `robots.txt`           | `astro build` + `pagefind` + servidor `/blog/` Playwright | `[x]`  | Zero 404, canonical `/blog/`, favicon `/blog/favicon.svg`, Pagefind e `robots.txt` válidos |
+| `T42-06` | Evidências visuais antes/depois (editorial, demo, mobile, botões, hover/focus, header/footer) | `docs/reports/evidence/phase-42/`                         | `[x]`  | Screenshots `before/` e `after/` inspecionadas visualmente                                 |
+
+## Fase 43 — Gerenciamento de Mídia Local, Otimização e Imagens Editoriais
+
+| ID       | Verificação                                                                                      | Comando / Método                      | Status | Evidência / Observação                                                             |
+| -------- | ------------------------------------------------------------------------------------------------ | ------------------------------------- | ------ | ---------------------------------------------------------------------------------- |
+| `T43-01` | Importação local (JPEG/PNG/Unicode/espaços), `--dry-run`, segurança (traversal/SVG/URL/corrupto) | `tests/unit/media-cli.test.ts`        | `[x]`  | 4 blocos de teste (Vitest 26/26) em diretório temporário isolado                   |
+| `T43-02` | Validação de mídia, inventário, duplicatas e arquivos sem uso                                    | `npm run media:validate/stats/find-*` | `[x]`  | Exit code 0; inventário salvo em `docs/reports/evidence/phase-43/media-stats.json` |
+
+## Fase 44 — CLI de Produção Editorial, Prévia e Publicação Controlada
+
+| ID       | Verificação                                                                           | Comando / Método                                 | Status | Evidência / Observação                                                        |
+| -------- | ------------------------------------------------------------------------------------- | ------------------------------------------------ | ------ | ----------------------------------------------------------------------------- |
+| `T44-01` | Criação de 8 entidades, colisão case-insensitive, `list`, `status` e `publish` seguro | `tests/unit/content-cli-phase44.test.ts`         | `[x]`  | 3 blocos E2E em diretório temporário isolado (Vitest 29/29)                   |
+| `T44-02` | Diagnóstico unificado (`content:doctor`) e isolamento de `dist-preview/`              | `npm run content:doctor` + `check-isolation.mjs` | `[x]`  | Exit code 0; `Prévia local de rascunhos` e `[PENDENTE]` bloqueados em `dist/` |
+
+## Fase 45 — Preparação das Primeiras Publicações Reais
+
+| ID       | Verificação                                                                            | Comando / Método                                 | Status | Evidência / Observação                                                             |
+| -------- | -------------------------------------------------------------------------------------- | ------------------------------------------------ | ------ | ---------------------------------------------------------------------------------- |
+| `T45-01` | 5 rascunhos + 4 fichas de catálogo em `draft` válidos sem notas/opiniões inventadas    | `npm run content:doctor`                         | `[x]`  | Exit code 0; 0 publicações reais, 5 rascunhos reais                                |
+| `T45-02` | Prévia local (`dist-preview/`, 51 páginas) seguida de build real (`dist/`, 42 páginas) | `content:preview --build-only` + `npm run build` | `[x]`  | Zero vazamento de rascunhos ou `[PENDENTE]` em `dist/`; screenshots em `phase-45/` |
+
+## Fase 46 — Auditoria Final de Produção e Prontidão para Lançamento
+
+| ID       | Verificação                                                                              | Comando / Método                            | Status | Evidência / Observação                                                                   |
+| -------- | ---------------------------------------------------------------------------------------- | ------------------------------------------- | ------ | ---------------------------------------------------------------------------------------- |
+| `T46-01` | Bateria completa (`format:check`, `lint`, `check`, `content:doctor`, `test`, `test:e2e`) | Pipeline completo Fase 46                   | `[x]`  | Vitest 29/29 + Playwright 11/11 + 0 erros de lint/check/format                           |
+| `T46-02` | Sequência `build:demo` -> `content:preview` -> `build` + `npm audit --omit=dev`          | `scripts/check-isolation.mjs` + `npm audit` | `[x]`  | Isolamento 100% em `dist/` (42p); 0 vulnerabilidades em produção; evidências `phase-46/` |

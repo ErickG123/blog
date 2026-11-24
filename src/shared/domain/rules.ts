@@ -4,7 +4,22 @@ import type { EditorialStatus } from '@features/editorial/domain/editorial.model
 export const DEFAULT_TIMEZONE = 'America/Sao_Paulo';
 
 const BASE_PATH = (process.env.ASTRO_BASE_PATH || '/').replace(/\/$/, '');
-const withBasePath = (path: string) => `${BASE_PATH}${path}`;
+
+export function withBasePath(path: string): string {
+  if (!path) return BASE_PATH || '/';
+  const normalized = path.startsWith('/') ? path : `/${path}`;
+  if (BASE_PATH && (normalized === BASE_PATH || normalized.startsWith(`${BASE_PATH}/`))) {
+    return normalized;
+  }
+  return `${BASE_PATH}${normalized}`;
+}
+
+export function resolveAssetUrl(src: string): string {
+  if (!src) return src;
+  if (/^(?:https?:|data:|blob:)/i.test(src)) return src;
+  if (src.startsWith('/')) return withBasePath(src);
+  return src;
+}
 
 export const ROUTES = {
   home: withBasePath('/'),
@@ -51,11 +66,12 @@ export interface PublishableRecord {
 
 export function isPublicEntry(
   entry: PublishableRecord,
-  options: { now?: Date; includeFixtures?: boolean } = {},
+  options: { now?: Date; includeFixtures?: boolean; includeDrafts?: boolean } = {},
 ): boolean {
-  const { now = new Date(), includeFixtures = false } = options;
-  if (entry.status !== 'published') return false;
+  const { now = new Date(), includeFixtures = false, includeDrafts = false } = options;
   if (entry.isFixture && !includeFixtures) return false;
+  if (entry.status === 'draft') return includeDrafts;
+  if (entry.status !== 'published') return false;
   const publishedTime = Date.parse(entry.publishedAt);
   if (Number.isNaN(publishedTime)) return false;
   return publishedTime <= now.getTime();

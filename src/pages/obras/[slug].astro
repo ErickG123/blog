@@ -2,7 +2,7 @@
 import BaseLayout from '@shared/layouts/BaseLayout.astro';
 import SectionHeading from '@shared/ui/SectionHeading.astro';
 import TagChip from '@shared/ui/TagChip.astro';
-import { ROUTES } from '@shared/domain/rules';
+import { resolveAssetUrl, ROUTES } from '@shared/domain/rules';
 import {
   formatCountryPtBr,
   formatPublicationStatus,
@@ -56,7 +56,7 @@ const workReviews = reviews.filter((r) => r.workId === work.id);
       {work.cover && (
         <figure class="ma-work-detail-hero__cover" style="margin: 0;">
           <img
-            src={work.cover.src}
+            src={resolveAssetUrl(work.cover.src)}
             alt={work.cover.alt}
             width={work.cover.width}
             height={work.cover.height}

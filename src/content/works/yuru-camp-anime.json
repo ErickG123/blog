@@ -1,0 +1,22 @@
+{
+  "id": "work-yuru-camp-anime",
+  "slug": "yuru-camp-anime",
+  "title": "Yuru Camp△",
+  "originalTitle": "ゆるキャン△",
+  "alternativeTitles": ["Laid-Back Camp"],
+  "kind": "anime",
+  "format": "series",
+  "country": "JP",
+  "originalLanguage": "ja",
+  "releaseYear": 2018,
+  "publicationStatus": "ongoing",
+  "synopsis": "Adaptação animada sobre estudantes do ensino médio que compartilham viagens de acampamento ao ar livre em regiões próximas ao Monte Fuji.",
+  "credits": [
+    {
+      "creatorId": "creator-afro",
+      "role": "other"
+    }
+  ],
+  "genreIds": ["genre-slice-of-life"],
+  "status": "draft"
+}

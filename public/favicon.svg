@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Mangá Atlas">
+  <rect width="64" height="64" rx="14" fill="#141418" />
+  <path d="M14 48V16h7.5l10.5 16.5L42.5 16H50v32h-7V28.5L33.5 43h-3L21 28.5V48h-7Z" fill="#f3f3f7" />
+  <rect x="44" y="42" width="6" height="6" rx="1.5" fill="#c82333" />
+</svg>

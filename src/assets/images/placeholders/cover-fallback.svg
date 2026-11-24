@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 600" width="420" height="600" role="img" aria-label="Capa indisponível — Mangá Atlas">
+  <rect width="420" height="600" fill="#1c1c23" />
+  <rect x="20" y="20" width="380" height="560" rx="12" fill="none" stroke="#34343f" stroke-width="2" />
+  <path d="M155 245h110v14H155zM155 275h78v10H155z" fill="#4a4a5b" />
+  <circle cx="210" cy="195" r="24" fill="none" stroke="#c82333" stroke-width="4" />
+  <text x="210" y="345" text-anchor="middle" fill="#b2b2c2" font-family="system-ui, sans-serif" font-size="16" font-weight="600">
+    Mangá Atlas
+  </text>
+  <text x="210" y="372" text-anchor="middle" fill="#88889b" font-family="system-ui, sans-serif" font-size="13">
+    Imagem editorial pendente
+  </text>
+</svg>

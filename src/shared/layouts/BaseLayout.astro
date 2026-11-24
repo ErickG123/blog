@@ -6,8 +6,8 @@ import '@shared/styles/editorial.scss';
 import { Search } from '@lucide/astro';
 import ThemeToggle from '@shared/ui/ThemeToggle.astro';
 import { PROJECT_IDENTITY } from '@shared/utils/project';
-import { ROUTES } from '@shared/domain/rules';
-import { shouldIncludeFixtures } from '@features/content/content.selectors';
+import { ROUTES, withBasePath } from '@shared/domain/rules';
+import { shouldIncludeDrafts, shouldIncludeFixtures } from '@features/content/content.selectors';
 
 interface Props {
   title?: string;
@@ -26,9 +26,13 @@ const {
 } = Astro.props;
 
 const isDemo = shouldIncludeFixtures();
+const isDraftPreview = shouldIncludeDrafts();
 const fullTitle = title ? `${title} — ${PROJECT_IDENTITY.name}` : PROJECT_IDENTITY.name;
 const siteOrigin = Astro.site?.toString().replace(/\/$/, '') ?? '';
-const canonicalUrl = siteOrigin ? `${siteOrigin}${canonicalPath}` : canonicalPath;
+const normalizedCanonicalPath = withBasePath(canonicalPath);
+const canonicalUrl = siteOrigin
+  ? `${siteOrigin}${normalizedCanonicalPath}`
+  : normalizedCanonicalPath;
 const currentPath = Astro.url.pathname;
 
 const navItems = [
@@ -55,12 +59,13 @@ const structuredData = jsonLd ?? {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
-    {isDemo && <meta name="robots" content="noindex, nofollow" />}
+    {(isDemo || isDraftPreview) && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonicalUrl} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content={ogType} />
     <meta property="og:locale" content="pt_BR" />
+    <link rel="icon" type="image/svg+xml" href={withBasePath('/favicon.svg')} />
     <link rel="alternate" type="application/rss+xml" title="Mangá Atlas RSS" href={ROUTES.feed} />
     <title>{fullTitle}</title>
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
@@ -91,6 +96,14 @@ const structuredData = jsonLd ?? {
         </div>
       </div>
     )}
+    {isDraftPreview && (
+      <div class="ma-demo-banner" role="note">
+        <div class="ma-container">
+          <strong>Prévia local de rascunhos</strong> — exibindo rascunhos apenas em ambiente local (
+          <code>noindex</code>, não publicado).
+        </div>
+      </div>
+    )}
     <header class="ma-header">
       <div class="ma-container ma-header__inner">
         <a class="ma-brand" href={ROUTES.home} aria-label="Mangá Atlas — Página inicial">
@@ -110,9 +123,9 @@ const structuredData = jsonLd ?? {
           ))}
           <a
             href={ROUTES.search}
+            class="ma-nav__search"
             aria-label="Pesquisar no Mangá Atlas"
             aria-current={currentPath.startsWith(ROUTES.search) ? 'page' : undefined}
-            style="display: inline-flex; align-items: center; gap: 0.3rem;"
           >
             <Search size={15} aria-hidden="true" />
             <span>Busca</span>

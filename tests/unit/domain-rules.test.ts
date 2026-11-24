@@ -4,8 +4,10 @@ import {
   isPublicEntry,
   isValidRating,
   normalizeSlug,
+  resolveAssetUrl,
   sortByDateDesc,
   validateWorkRelationships,
+  withBasePath,
 } from '@shared/domain/rules';
 
 describe('Regras puras de domínio (Fase 02)', () => {
@@ -86,5 +88,13 @@ describe('Regras puras de domínio (Fase 02)', () => {
       validIds,
     );
     expect(mutualRelated).toEqual([]);
+  });
+
+  it('resolve caminhos internos e assets respeitando o base path sem duplicar prefixos', () => {
+    expect(withBasePath('/sobre/')).toBe('/sobre/');
+    expect(withBasePath('sobre/')).toBe('/sobre/');
+    expect(resolveAssetUrl('/favicon.svg')).toBe('/favicon.svg');
+    expect(resolveAssetUrl('https://exemplo.org/capa.jpg')).toBe('https://exemplo.org/capa.jpg');
+    expect(resolveAssetUrl('data:image/svg+xml;base64,abc')).toBe('data:image/svg+xml;base64,abc');
   });
 });

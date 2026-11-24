@@ -23,6 +23,23 @@
   --ma-accent-hover: #a41a28;
   --ma-accent-soft: #fcecef;
 
+  // Botões semânticos (WCAG 2.2 AA >= 4.5:1 em todos os estados)
+  --ma-btn-primary-bg: #c82333;
+  --ma-btn-primary-hover: #a41a28;
+  --ma-btn-primary-active: #8b1521;
+  --ma-btn-primary-text: #ffffff;
+
+  --ma-btn-secondary-bg: var(--ma-surface);
+  --ma-btn-secondary-hover: var(--ma-surface-muted);
+  --ma-btn-secondary-active: var(--ma-surface-interactive);
+  --ma-btn-secondary-border: var(--ma-border-strong);
+  --ma-btn-secondary-text: var(--ma-text);
+
+  --ma-btn-height: 2.625rem;
+  --ma-btn-px: 1.125rem;
+  --ma-btn-radius: 8px;
+  --ma-btn-gap: var(--ma-space-2);
+
   --ma-secondary: #6d3fd6;
   --ma-secondary-soft: #f0ebfe;
 
@@ -97,6 +114,18 @@
   --ma-accent: #e53946;
   --ma-accent-hover: #f35b67;
   --ma-accent-soft: #2e191e;
+
+  // Botões semânticos no tema escuro (contraste >= 4.5:1 com texto branco)
+  --ma-btn-primary-bg: #c82333;
+  --ma-btn-primary-hover: #dc2b3c;
+  --ma-btn-primary-active: #a81c2a;
+  --ma-btn-primary-text: #ffffff;
+
+  --ma-btn-secondary-bg: var(--ma-surface-elevated);
+  --ma-btn-secondary-hover: var(--ma-surface-interactive);
+  --ma-btn-secondary-active: #343442;
+  --ma-btn-secondary-border: var(--ma-border-strong);
+  --ma-btn-secondary-text: var(--ma-text);
 
   --ma-secondary: #a78bfa;
   --ma-secondary-soft: #231d36;

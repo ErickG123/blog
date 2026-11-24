@@ -1,0 +1,22 @@
+{
+  "id": "work-yotsuba-to",
+  "slug": "yotsuba-to",
+  "title": "Yotsuba&!",
+  "originalTitle": "よつばと!",
+  "alternativeTitles": ["Yotsuba to!"],
+  "kind": "manga",
+  "format": "series",
+  "country": "JP",
+  "originalLanguage": "ja",
+  "releaseYear": 2003,
+  "publicationStatus": "ongoing",
+  "synopsis": "Acompanha o cotidiano de Yotsuba Koiwai, uma criança curiosa que se muda com o pai adotivo para um novo bairro e descobre pequenos acontecimentos do dia a dia.",
+  "credits": [
+    {
+      "creatorId": "creator-kiyohiko-azuma",
+      "role": "author"
+    }
+  ],
+  "genreIds": ["genre-slice-of-life", "genre-comedia"],
+  "status": "draft"
+}

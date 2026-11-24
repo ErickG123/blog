@@ -1,6 +1,7 @@
 # Build & Astro
 dist/
 dist-demo/
+dist-preview/
 .astro/
 
 # Dependencies

@@ -11,11 +11,13 @@ import { ROUTES } from '@shared/domain/rules';
       O endereço que você tentou acessar não existe ou foi movido. Você pode voltar para a página
       inicial ou explorar a biblioteca de obras.
     </p>
-    <p>
+    <div class="ma-btn-group">
       <Button href={ROUTES.home} variant="primary">
         Voltar ao início
       </Button>
-      <Button href={ROUTES.works}>Explorar biblioteca</Button>
-    </p>
+      <Button href={ROUTES.works} variant="secondary">
+        Explorar biblioteca
+      </Button>
+    </div>
   </section>
 </BaseLayout>

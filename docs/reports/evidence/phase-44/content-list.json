@@ -1,0 +1,522 @@
+﻿[
+  {
+    "type": "work",
+    "id": "work-yotsuba-to",
+    "slug": "yotsuba-to",
+    "title": "Yotsuba&!",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/works/yotsuba-to.json"
+  },
+  {
+    "type": "work",
+    "id": "work-yuru-camp-anime",
+    "slug": "yuru-camp-anime",
+    "title": "Yuru Camp△",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/works/yuru-camp-anime.json"
+  },
+  {
+    "type": "creator",
+    "id": "creator-afro",
+    "slug": "afro",
+    "title": "Afro",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/creators/afro.json"
+  },
+  {
+    "type": "creator",
+    "id": "creator-kiyohiko-azuma",
+    "slug": "kiyohiko-azuma",
+    "title": "Kiyohiko Azuma",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/creators/kiyohiko-azuma.json"
+  },
+  {
+    "type": "genre",
+    "id": "genre-aventura",
+    "slug": "aventura",
+    "title": "Aventura",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/genres/aventura.json"
+  },
+  {
+    "type": "genre",
+    "id": "genre-comedia",
+    "slug": "comedia",
+    "title": "Comédia",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/genres/comedia.json"
+  },
+  {
+    "type": "genre",
+    "id": "genre-drama",
+    "slug": "drama",
+    "title": "Drama",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/genres/drama.json"
+  },
+  {
+    "type": "genre",
+    "id": "genre-esporte",
+    "slug": "esporte",
+    "title": "Esporte",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/genres/esporte.json"
+  },
+  {
+    "type": "genre",
+    "id": "genre-fantasia",
+    "slug": "fantasia",
+    "title": "Fantasia",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/genres/fantasia.json"
+  },
+  {
+    "type": "genre",
+    "id": "genre-ficcao-cientifica",
+    "slug": "ficcao-cientifica",
+    "title": "Ficção Científica",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/genres/ficcao-cientifica.json"
+  },
+  {
+    "type": "genre",
+    "id": "genre-historico",
+    "slug": "historico",
+    "title": "Histórico",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/genres/historico.json"
+  },
+  {
+    "type": "genre",
+    "id": "genre-misterio",
+    "slug": "misterio",
+    "title": "Mistério",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/genres/misterio.json"
+  },
+  {
+    "type": "genre",
+    "id": "genre-psicologico",
+    "slug": "psicologico",
+    "title": "Psicológico",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/genres/psicologico.json"
+  },
+  {
+    "type": "genre",
+    "id": "genre-slice-of-life",
+    "slug": "slice-of-life",
+    "title": "Slice of Life",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/genres/slice-of-life.json"
+  },
+  {
+    "type": "genre",
+    "id": "genre-suspense",
+    "slug": "suspense",
+    "title": "Suspense",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/genres/suspense.json"
+  },
+  {
+    "type": "genre",
+    "id": "genre-terror",
+    "slug": "terror",
+    "title": "Terror",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/genres/terror.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-adaptacao",
+    "slug": "adaptacao",
+    "title": "Adaptacao",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/adaptacao.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-arquitetura",
+    "slug": "arquitetura",
+    "title": "Arquitetura",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/arquitetura.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-box-colecionador",
+    "slug": "box-colecionador",
+    "title": "Box Colecionador",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/box-colecionador.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-capa-dura",
+    "slug": "capa-dura",
+    "title": "Capa Dura",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/capa-dura.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-cidades",
+    "slug": "cidades",
+    "title": "Cidades",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/cidades.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-classicos-modernos",
+    "slug": "classicos-modernos",
+    "title": "Classicos Modernos",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/classicos-modernos.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-cotidiano",
+    "slug": "cotidiano",
+    "title": "Cotidiano",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/cotidiano.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-direcao-de-arte",
+    "slug": "direcao-de-arte",
+    "title": "Direcao De Arte",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/direcao-de-arte.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-edicao-fisica",
+    "slug": "edicao-fisica",
+    "title": "Edicao Fisica",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/edicao-fisica.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-em-andamento",
+    "slug": "em-andamento",
+    "title": "Em Andamento",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/em-andamento.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-encerrado",
+    "slug": "encerrado",
+    "title": "Encerrado",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/encerrado.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-estante",
+    "slug": "estante",
+    "title": "Estante",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/estante.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-ficcao-especulativa",
+    "slug": "ficcao-especulativa",
+    "title": "Ficcao Especulativa",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/ficcao-especulativa.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-guia-de-entrada",
+    "slug": "guia-de-entrada",
+    "title": "Guia De Entrada",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/guia-de-entrada.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-josei",
+    "slug": "josei",
+    "title": "Josei",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/josei.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-leitura-curta",
+    "slug": "leitura-curta",
+    "title": "Leitura Curta",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/leitura-curta.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-memoria",
+    "slug": "memoria",
+    "title": "Memoria",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/memoria.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-narrativa-visual",
+    "slug": "narrativa-visual",
+    "title": "Narrativa Visual",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/narrativa-visual.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-obra-longa",
+    "slug": "obra-longa",
+    "title": "Obra Longa",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/obra-longa.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-papel-offwhite",
+    "slug": "papel-offwhite",
+    "title": "Papel Offwhite",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/papel-offwhite.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-ritmo",
+    "slug": "ritmo",
+    "title": "Ritmo",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/ritmo.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-seinen",
+    "slug": "seinen",
+    "title": "Seinen",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/seinen.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-shojo",
+    "slug": "shojo",
+    "title": "Shojo",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/shojo.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-shonen",
+    "slug": "shonen",
+    "title": "Shonen",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/shonen.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-sobrecapa",
+    "slug": "sobrecapa",
+    "title": "Sobrecapa",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/sobrecapa.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-suspense-urbano",
+    "slug": "suspense-urbano",
+    "title": "Suspense Urbano",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/suspense-urbano.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-traducao",
+    "slug": "traducao",
+    "title": "Traducao",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/traducao.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-trilha-sonora",
+    "slug": "trilha-sonora",
+    "title": "Trilha Sonora",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/trilha-sonora.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-viagem",
+    "slug": "viagem",
+    "title": "Viagem",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/viagem.json"
+  },
+  {
+    "type": "tag",
+    "id": "tag-volume-unico",
+    "slug": "volume-unico",
+    "title": "Volume Unico",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/tags/volume-unico.json"
+  },
+  {
+    "type": "author",
+    "id": "author-atlas",
+    "slug": "redacao-manga-atlas",
+    "title": "Redação Mangá Atlas",
+    "status": "catalog",
+    "publishedAt": null,
+    "isFixture": false,
+    "file": "src/content/authors/redacao-manga-atlas.json"
+  },
+  {
+    "type": "review",
+    "id": "review-yotsuba-to-volume-1",
+    "slug": "yotsuba-to-volume-1",
+    "title": "Yotsuba&! — Volume 1 (Rascunho editorial)",
+    "status": "draft",
+    "publishedAt": "2026-11-24",
+    "isFixture": false,
+    "file": "src/content/reviews/yotsuba-to-volume-1.mdx"
+  },
+  {
+    "type": "review",
+    "id": "review-yuru-camp-temporada-1",
+    "slug": "yuru-camp-temporada-1",
+    "title": "Yuru Camp△ — Temporada 1 (Rascunho editorial)",
+    "status": "draft",
+    "publishedAt": "2026-11-24",
+    "isFixture": false,
+    "file": "src/content/reviews/yuru-camp-temporada-1.mdx"
+  },
+  {
+    "type": "article",
+    "id": "article-cotidiano-como-narrativa-slice-of-life",
+    "slug": "cotidiano-como-narrativa-slice-of-life",
+    "title": "O cotidiano como narrativa: o que torna o slice of life interessante?",
+    "status": "draft",
+    "publishedAt": "2026-11-24",
+    "isFixture": false,
+    "file": "src/content/articles/cotidiano-como-narrativa-slice-of-life.mdx"
+  },
+  {
+    "type": "guide",
+    "id": "guide-por-onde-comecar-mangas-slice-of-life",
+    "slug": "por-onde-comecar-mangas-slice-of-life",
+    "title": "Por onde começar a descobrir mangás slice of life",
+    "status": "draft",
+    "publishedAt": "2026-11-24",
+    "isFixture": false,
+    "file": "src/content/recommendations/por-onde-comecar-mangas-slice-of-life.mdx"
+  },
+  {
+    "type": "collecting",
+    "id": "collecting-edicao-japonesa-yotsuba-volume-1",
+    "slug": "edicao-japonesa-yotsuba-volume-1",
+    "title": "Conhecendo uma edição japonesa de Yotsuba&! — Volume 1",
+    "status": "draft",
+    "publishedAt": "2026-11-24",
+    "isFixture": false,
+    "file": "src/content/collecting/edicao-japonesa-yotsuba-volume-1.mdx"
+  }
+]

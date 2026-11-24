@@ -29,6 +29,8 @@ const forbiddenMarkers = [
   'yotsuba-demo',
   'yuru-camp-demo',
   'navillera-demo',
+  'Prévia local de rascunhos',
+  '[PENDENTE]',
 ];
 
 for (const file of files) {

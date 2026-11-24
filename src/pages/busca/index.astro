@@ -26,7 +26,7 @@ import { ROUTES } from '@shared/domain/rules';
     <button type="submit" class="ma-btn ma-btn--primary">
       Buscar
     </button>
-    <button type="button" class="ma-btn" data-search-clear>
+    <button type="button" class="ma-btn ma-btn--secondary" data-search-clear>
       Limpar
     </button>
   </form>
@@ -58,20 +58,22 @@ import { ROUTES } from '@shared/domain/rules';
       let pagefind = null;
       let loadFailed = false;
 
+      const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+
       async function ensurePagefind() {
         if (pagefind) return pagefind;
         if (loadFailed) return null;
         try {
-          const mod = await import(`${baseUrl}pagefind/pagefind.js`);
+          const mod = await import(`${normalizedBase}pagefind/pagefind.js`);
           await mod.init();
-          await mod.options({ baseUrl });
+          await mod.options({ baseUrl: normalizedBase });
           pagefind = mod;
           return pagefind;
         } catch {
           loadFailed = true;
           if (statusEl) {
             statusEl.textContent =
-              'Índice de busca indisponível neste modo (ex.: servidor dev sem build prévio). Execute "npm run build:demo" e "npm run preview:demo" para usar a busca completa.';
+              'Índice de busca indisponível neste modo (ex.: servidor dev sem build prévio). Execute o build estático para usar a busca completa.';
           }
           return null;
         }
@@ -92,7 +94,7 @@ import { ROUTES } from '@shared/domain/rules';
         const search = await pf.search(term);
         const items = await Promise.all(search.results.slice(0, 20).map((r) => r.data()));
         if (items.length === 0) {
-          statusEl.textContent = `Nenhum resultado encontrado para "${term}".`;
+          statusEl.textContent = `Nenhum resultado encontrado para "${term}". Novas publicações serão indexadas automaticamente assim que forem lançadas.`;
           return;
         }
         statusEl.textContent = `${items.length} resultado(s) encontrado(s) para "${term}".`;

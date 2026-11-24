@@ -1,20 +1,43 @@
 ---
+type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'link' | 'default';
+
 interface Props {
   href?: string;
-  variant?: 'default' | 'primary';
+  variant?: ButtonVariant;
   type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
+  ariaLabel?: string;
+  class?: string;
+  id?: string;
 }
 
-const { href, variant = 'default', type = 'button' } = Astro.props;
-const cls = variant === 'primary' ? 'ma-btn ma-btn--primary' : 'ma-btn';
+const {
+  href,
+  variant = 'secondary',
+  type = 'button',
+  disabled = false,
+  ariaLabel,
+  class: className = '',
+  id,
+} = Astro.props;
+
+const resolvedVariant = variant === 'default' ? 'secondary' : variant;
+const cls = ['ma-btn', `ma-btn--${resolvedVariant}`, className].filter(Boolean).join(' ');
 ---
 
 {href ? (
-  <a class={cls} href={href}>
+  <a
+    id={id}
+    class={cls}
+    href={disabled ? undefined : href}
+    aria-label={ariaLabel}
+    aria-disabled={disabled ? 'true' : undefined}
+    tabindex={disabled ? -1 : undefined}
+  >
     <slot />
   </a>
 ) : (
-  <button class={cls} type={type}>
+  <button id={id} class={cls} type={type} disabled={disabled} aria-label={ariaLabel}>
     <slot />
   </button>
 )}
