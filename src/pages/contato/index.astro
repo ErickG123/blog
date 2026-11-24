@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@shared/layouts/BaseLayout.astro';
+import { ROUTES } from '@shared/domain/rules';
 ---
 
 <BaseLayout
@@ -10,7 +11,7 @@ import BaseLayout from '@shared/layouts/BaseLayout.astro';
     <h1>Contato e canais complementares</h1>
     <p>
       O Mangá Atlas é mantido como um projeto editorial estático e independente. Você pode
-      acompanhar novas publicações diretamente pelo <a href="/rss.xml">feed RSS</a> ou pelos canais
+      acompanhar novas publicações diretamente pelo <a href={ROUTES.feed}>feed RSS</a> ou pelos canais
       complementares do autor quando divulgados.
     </p>
     <p>

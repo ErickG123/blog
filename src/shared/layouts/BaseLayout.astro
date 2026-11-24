@@ -61,7 +61,7 @@ const structuredData = jsonLd ?? {
     <meta property="og:description" content={description} />
     <meta property="og:type" content={ogType} />
     <meta property="og:locale" content="pt_BR" />
-    <link rel="alternate" type="application/rss+xml" title="Mangá Atlas RSS" href="/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title="Mangá Atlas RSS" href={ROUTES.feed} />
     <title>{fullTitle}</title>
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
     <script is:inline>
@@ -182,7 +182,7 @@ const structuredData = jsonLd ?? {
                 <a href={ROUTES.contact}>Contato</a>
               </li>
               <li>
-                <a href="/rss.xml">Feed RSS</a>
+                <a href={ROUTES.feed}>Feed RSS</a>
               </li>
             </ul>
           </div>

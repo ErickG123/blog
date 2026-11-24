@@ -48,7 +48,7 @@ import { ROUTES } from '@shared/domain/rules';
     </p>
   </noscript>
 
-  <script is:inline>
+  <script is:inline define:vars={{ baseUrl: import.meta.env.BASE_URL }}>
     (() => {
       const form = document.querySelector('[data-search-form]');
       const input = document.getElementById('ma-search-input');
@@ -62,8 +62,9 @@ import { ROUTES } from '@shared/domain/rules';
         if (pagefind) return pagefind;
         if (loadFailed) return null;
         try {
-          const mod = await import('/pagefind/pagefind.js');
+          const mod = await import(`${baseUrl}pagefind/pagefind.js`);
           await mod.init();
+          await mod.options({ baseUrl });
           pagefind = mod;
           return pagefind;
         } catch {

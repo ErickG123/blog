@@ -3,30 +3,34 @@ import type { EditorialStatus } from '@features/editorial/domain/editorial.model
 
 export const DEFAULT_TIMEZONE = 'America/Sao_Paulo';
 
+const BASE_PATH = (process.env.ASTRO_BASE_PATH || '/').replace(/\/$/, '');
+const withBasePath = (path: string) => `${BASE_PATH}${path}`;
+
 export const ROUTES = {
-  home: '/',
-  works: '/obras/',
-  work: (slug: string) => `/obras/${slug}/`,
-  reviews: '/reviews/',
-  review: (slug: string) => `/reviews/${slug}/`,
-  articles: '/artigos/',
-  article: (slug: string) => `/artigos/${slug}/`,
-  guides: '/guias/',
-  guide: (slug: string) => `/guias/${slug}/`,
-  collecting: '/colecionismo/',
-  collectingPost: (slug: string) => `/colecionismo/${slug}/`,
-  creators: '/criadores/',
-  creator: (slug: string) => `/criadores/${slug}/`,
-  publishers: '/editoras/',
-  publisher: (slug: string) => `/editoras/${slug}/`,
-  studios: '/estudios/',
-  studio: (slug: string) => `/estudios/${slug}/`,
-  tags: '/tags/',
-  tag: (slug: string) => `/tags/${slug}/`,
-  search: '/busca/',
-  about: '/sobre/',
-  editorialPolicy: '/politica-editorial/',
-  contact: '/contato/',
+  home: withBasePath('/'),
+  works: withBasePath('/obras/'),
+  work: (slug: string) => withBasePath(`/obras/${slug}/`),
+  reviews: withBasePath('/reviews/'),
+  review: (slug: string) => withBasePath(`/reviews/${slug}/`),
+  articles: withBasePath('/artigos/'),
+  article: (slug: string) => withBasePath(`/artigos/${slug}/`),
+  guides: withBasePath('/guias/'),
+  guide: (slug: string) => withBasePath(`/guias/${slug}/`),
+  collecting: withBasePath('/colecionismo/'),
+  collectingPost: (slug: string) => withBasePath(`/colecionismo/${slug}/`),
+  creators: withBasePath('/criadores/'),
+  creator: (slug: string) => withBasePath(`/criadores/${slug}/`),
+  publishers: withBasePath('/editoras/'),
+  publisher: (slug: string) => withBasePath(`/editoras/${slug}/`),
+  studios: withBasePath('/estudios/'),
+  studio: (slug: string) => withBasePath(`/estudios/${slug}/`),
+  tags: withBasePath('/tags/'),
+  tag: (slug: string) => withBasePath(`/tags/${slug}/`),
+  search: withBasePath('/busca/'),
+  feed: withBasePath('/rss.xml'),
+  about: withBasePath('/sobre/'),
+  editorialPolicy: withBasePath('/politica-editorial/'),
+  contact: withBasePath('/contato/'),
 } as const;
 
 export function normalizeSlug(input: string): string {
